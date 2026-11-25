@@ -112,8 +112,7 @@ function ensureConfigSheet(companies) {
   styleHeader(sh.getRange(tStart + 1, 1, 1, 5));
   if (trows.length > 1) sh.getRange(tStart + 2, 2, trows.length - 1, 3).setBackground('#FFF2CC').setFontColor('#0000FF');
   sh.setColumnWidth(1, 220); sh.setColumnWidth(2, 200); sh.setColumnWidth(3, 160); sh.setColumnWidth(4, 120); sh.setColumnWidth(5, 220);
-  sh.getRange('C:C').setWrap(true);
-  sh.setColumnWidth(3, 520);
+  sh.getRange(CONFIG_LAYOUT.settingsHeaderRow + 2, 3, rows.length - 1, 1).setWrap(false).setFontColor('#5F6368');
   return sh;
 }
 

@@ -57,7 +57,12 @@ function toast_(msg) { try { ss_().toast(msg, APP_NAME, 8); } catch (e) { /* no 
 /** One-click, idempotent setup. */
 function setup() {
   var ss = ss_();
-  PropertiesService.getScriptProperties().setProperty('SPREADSHEET_ID', ss.getId());
+  var props = PropertiesService.getScriptProperties();
+  if (props.getProperty('SPREADSHEET_ID') && props.getProperty('SPREADSHEET_ID') !== ss.getId()) {
+    // This is a copy of the Sheet: start with its own Drive folders, not the original's.
+    ['FOLDER_ROOT', 'FOLDER_INBOX', 'FOLDER_PROCESSED', 'PENDING_BATCH', 'SCHEDULE_TEXT'].forEach(function (k) { props.deleteProperty(k); });
+  }
+  props.setProperty('SPREADSHEET_ID', ss.getId());
   var model = loadModel();
   var n = installFormulas(model);
   ensureConfigSheet(model.layout.companies);
