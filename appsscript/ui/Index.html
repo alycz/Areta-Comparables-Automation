@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Benne&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #0E4FF5; --midnight: #002B99; --midday: #789DFF; --frost: #DDE7FF;
+    --ink: #0B0F1A; --muted: #5B6275; --line: #E4E8F2; --bg: #F7F9FD; --card: #FFFFFF;
+    --err: #C5221F; --err-bg: #FCE8E6; --rev: #8A5A00; --rev-bg: #FFF4CE; --ok: #137333; --ok-bg: #E6F4EA; --info-bg: #F1F3F4;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Instrument Sans', system-ui, sans-serif; color: var(--ink); background: var(--bg); font-size: 14px; -webkit-font-smoothing: antialiased; }
+  .serif { font-family: 'Benne', Georgia, serif; font-weight: 400; }
+  a { color: var(--blue); text-decoration: none; }
+  button { font: inherit; cursor: pointer; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 8px 16px; font-weight: 600; transition: all .15s; }
+  button:hover { border-color: var(--midday); }
+  button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  button.primary:hover { background: var(--midnight); border-color: var(--midnight); }
+  button.ghost { background: transparent; }
+  button:disabled { opacity: .5; cursor: progress; }
+
+  /* Top bar */
+  .top { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; padding: 14px 32px; background: rgba(255,255,255,.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .lockup { display: flex; align-items: center; gap: 10px; color: var(--ink); }
+  .logo { height: 26px; width: auto; color: var(--ink); display: block; }
+  .lockup .sub { font-weight: 700; letter-spacing: .14em; font-size: 12px; color: var(--ink); margin-top: -10px; }
+  .top .spacer { flex: 1; }
+  .top .user { color: var(--muted); font-size: 13px; }
+
+  /* Hero */
+  .hero { position: relative; overflow: hidden; padding: 40px 32px 28px; background: linear-gradient(115deg, #fff 0%, #fff 45%, var(--frost) 100%); border-bottom: 1px solid var(--line); }
+  .hero:after { content: ''; position: absolute; right: -80px; top: -120px; width: 520px; height: 420px; background: linear-gradient(135deg, rgba(120,157,255,.0), rgba(14,79,245,.35)); filter: blur(40px); transform: skewX(-24deg); pointer-events: none; }
+  .hero h1 { margin: 0 0 6px; font-size: 40px; line-height: 1.1; }
+  .hero p { margin: 0; color: var(--muted); }
+  .wrap { max-width: 1320px; margin: 0 auto; }
+  .kpis { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 12px; margin-top: 24px; position: relative; z-index: 1; }
+  .kpi { background: rgba(255,255,255,.9); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  .kpi .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .kpi .v { font-size: 22px; font-weight: 600; margin-top: 4px; }
+  .kpi .v.err { color: var(--err); } .kpi .v.rev { color: var(--rev); }
+  .kpi .s { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  main { padding: 24px 32px 60px; }
+  .steps { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+  .step { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .step .n { width: 26px; height: 26px; border-radius: 8px; background: var(--frost); color: var(--midnight); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .step h3 { margin: 0; font-size: 16px; }
+  .step p { margin: 0; color: var(--muted); font-size: 13px; flex: 1; }
+  .drop { border: 1.5px dashed var(--midday); border-radius: 12px; padding: 12px; text-align: center; color: var(--muted); font-size: 13px; background: #FAFBFF; cursor: pointer; }
+  .drop.over { background: var(--frost); color: var(--midnight); }
+
+  .tabs { display: flex; gap: 6px; margin: 28px 0 12px; border-bottom: 1px solid var(--line); }
+  .tab { border: none; border-radius: 0; background: none; padding: 10px 14px; color: var(--muted); border-bottom: 2px solid transparent; }
+  .tab.on { color: var(--ink); border-bottom-color: var(--blue); }
+  .tab .c { display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 6px; border-radius: 999px; background: var(--frost); color: var(--midnight); font-size: 12px; }
+  .panel { display: none; } .panel.on { display: block; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: auto; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th { position: sticky; top: 0; background: var(--midnight); color: #fff; font-weight: 600; font-size: 12px; text-align: right; padding: 9px 10px; white-space: nowrap; }
+  th.l, td.l { text-align: left; }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+  tr.group td { background: #F3F5FB; font-weight: 600; text-align: left; color: var(--midnight); }
+  tr.median td { font-weight: 700; background: #FAFBFF; }
+  tr.all td { font-weight: 700; background: var(--frost); }
+  td.neg { color: var(--err); } td.pos { color: var(--ok); }
+  .nm { color: var(--muted); }
+  .flag { display: inline-block; max-width: 320px; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-size: 12px; color: var(--rev); }
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .03em; }
+  .pill.ERROR, .pill.Blocked { background: var(--err-bg); color: var(--err); }
+  .pill.REVIEW, .pill.Review { background: var(--rev-bg); color: var(--rev); }
+  .pill.INFO, .pill.No { background: var(--info-bg); color: var(--muted); }
+  .pill.Ready, .pill.Reviewed, .pill.OK { background: var(--ok-bg); color: var(--ok); }
+  .pill.Failed { background: var(--err-bg); color: var(--err); } .pill.Partial, .pill.Exceptions { background: var(--rev-bg); color: var(--rev); }
+  .msg { white-space: normal; text-align: left; min-width: 360px; max-width: 640px; line-height: 1.4; }
+  .src { white-space: normal; text-align: left; font-size: 12px; color: var(--muted); max-width: 260px; }
+  .bar { display: flex; gap: 8px; align-items: center; padding: 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .bar .spacer { flex: 1; }
+  .bar input[type=text] { font: inherit; border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; min-width: 260px; }
+  .chip { border-radius: 999px; padding: 5px 12px; font-size: 12px; }
+  .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .empty { padding: 28px; text-align: center; color: var(--muted); }
+  .toast { position: fixed; right: 24px; bottom: 24px; max-width: 460px; background: var(--ink); color: #fff; padding: 14px 18px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.2); display: none; z-index: 50; line-height: 1.4; }
+  .toast.err { background: var(--err); }
+  .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.5); border-top-color: #fff; border-radius: 50%; animation: s 1s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  .foot { color: var(--muted); font-size: 12px; margin-top: 18px; }
+
+  /* Sidebar mode */
+  body.sidebar .top, body.sidebar .hero, body.sidebar .tabs, body.sidebar .panel { display: none; }
+  body.sidebar main { padding: 14px; }
+  body.sidebar .steps { grid-template-columns: 1fr; }
+  body.sidebar .kpis { grid-template-columns: 1fr 1fr; margin: 0 0 12px; }
+  .side-head { display: none; }
+  body.sidebar .side-head { display: block; margin-bottom: 12px; }
+  body.sidebar .side-head .logo { height: 20px; color: var(--ink); }
+
+  @media (max-width: 1000px) { .kpis { grid-template-columns: 1fr 1fr; } .steps { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .top, .hero, main { padding-left: 16px; padding-right: 16px; } .steps, .kpis { grid-template-columns: 1fr; } .hero h1 { font-size: 30px; } }
+</style>
+</head>
+<body class="<?= mode ?>">
+  <div class="top">
+    <div class="lockup"><?!= include('ui/Logo') ?><span class="sub">COMPS</span></div>
+    <div class="spacer"></div>
+    <span class="user" id="user"></span>
+    <button class="ghost" onclick="load()">Refresh view</button>
+    <button class="primary" id="openModel">Open model ↗</button>
+  </div>
+
+  <section class="hero">
+    <div class="wrap">
+      <div class="serif" style="color:var(--blue);font-size:15px;margin-bottom:6px" id="sheetName">Trading comparables</div>
+      <h1 class="serif">Exchanges &amp; Trading Infrastructure</h1>
+      <p id="schedule">Loading…</p>
+      <div class="kpis" id="kpis"></div>
+    </div>
+  </section>
+
+  <main>
+    <div class="wrap">
+      <div class="side-head"><?!= include('ui/Logo') ?><div style="font-weight:700;letter-spacing:.14em;font-size:11px;margin-top:4px">COMPS ENGINE</div></div>
+      <div class="kpis" id="kpisSide" style="display:none"></div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="n">1</div><h3>Share prices</h3>
+          <p>Runs automatically every week. Pulls Google Finance, cross-checks a second source, keeps last week's close as the prior price.</p>
+          <button class="primary" data-act="prices">Refresh prices now</button>
+        </div>
+        <div class="step">
+          <div class="n">2</div><h3>New CIQ exports</h3>
+          <p>Drop the Capital IQ "Financials" exports for any companies that have reported. Others keep their current numbers.</p>
+          <label class="drop" id="drop"><input type="file" id="file" multiple accept=".xls,.xlsx" hidden><span id="dropText">Drop .xls files here or click to choose</span></label>
+          <button data-act="stage" id="stageBtn">Read &amp; validate exports</button>
+        </div>
+        <div class="step">
+          <div class="n">3</div><h3>Review &amp; apply</h3>
+          <p>See every proposed change with its source cell. Blocked items never reach the model. Apply writes only the blue input cells.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" data-act="apply" id="applyBtn">Apply changes</button><button data-act="discard">Discard</button></div>
+        </div>
+        <div class="step">
+          <div class="n">4</div><h3>Controls &amp; report</h3>
+          <p>Recalculates every formula independently, checks for hardcodes and errors, and builds the validation report tab.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button data-act="checks">Run checks</button><button data-act="report">Build report</button></div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab on" data-tab="comps">Comps</button>
+        <button class="tab" data-tab="exc">Exceptions <span class="c" id="cExc">0</span></button>
+        <button class="tab" data-tab="queue">Review queue <span class="c" id="cQueue">0</span></button>
+        <button class="tab" data-tab="runs">Activity</button>
+      </div>
+
+      <div class="panel on" id="p-comps"><div class="card"><table id="comps"></table></div>
+        <div class="foot">All figures US$ mm except per-share. EV = market cap + net debt + NCI + preferred (CIQ basis). NM = denominator zero or negative; medians ignore NM. ⚑ = engine flag, see Exceptions.</div></div>
+
+      <div class="panel" id="p-exc"><div class="card">
+        <div class="bar">
+          <button class="chip on" data-sev="open">Open</button><button class="chip" data-sev="ERROR">Errors</button><button class="chip" data-sev="REVIEW">Review</button><button class="chip" data-sev="INFO">Info</button><button class="chip" data-sev="Reviewed">Signed off</button>
+          <div class="spacer"></div>
+          <input type="text" id="comment" placeholder="Comment for sign-off (optional)">
+          <button class="primary" id="signoff">Mark selected reviewed</button>
+        </div>
+        <table id="exc"></table></div></div>
+
+      <div class="panel" id="p-queue"><div class="card">
+        <div class="bar"><span id="queueSummary" style="color:var(--muted)"></span><div class="spacer"></div><button data-act="apply" class="primary">Apply ticked changes</button></div>
+        <table id="queue"></table></div></div>
+
+      <div class="panel" id="p-runs"><div class="card"><table id="runs"></table></div></div>
+
+      <div class="foot" id="footer"></div>
+    </div>
+  </main>
+  <div class="toast" id="toast"></div>
+
+<script>
+  var MODE = '<?= mode ?>';
+  var STATE = null, SEV = 'open';
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  function call(fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function (res, rej) { google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn].apply(null, args); });
+  }
+  function toast(t, isErr) { var el = $('#toast'); el.textContent = t; el.className = 'toast' + (isErr ? ' err' : ''); el.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(function () { el.style.display = 'none'; }, isErr ? 12000 : 7000); }
+  function n(v, dp) { if (v === null || v === undefined || v === '') return '<span class="nm">–</span>'; if (typeof v !== 'number') return '<span class="nm">' + esc(v) + '</span>'; var s = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp }); return v < 0 ? '(' + s + ')' : s; }
+  function pc(v) { if (typeof v !== 'number') return '<span class="nm">' + esc(v || '–') + '</span>'; var s = (Math.abs(v) * 100).toFixed(1) + '%'; return v < 0 ? '(' + s + ')' : s; }
+  function x(v) { if (typeof v !== 'number') return '<span class="nm">' + esc(v || '–') + '</span>'; return v.toFixed(1) + 'x'; }
+
+  function load() {
+    return call('api_dashboard').then(function (j) { STATE = JSON.parse(j); render(); }).catch(function (e) { toast(e.message || e, true); });
+  }
+
+  function render() {
+    var s = STATE, snap = s.snapshot;
+    var set = function (sel, t) { var el = $(sel); if (el) el.textContent = t; };
+    set('#user', s.user); set('#sheetName', s.sheetName); set('#schedule', s.schedule);
+    if ($('#openModel')) $('#openModel').onclick = function () { window.open(s.sheetUrl, '_blank'); };
+    var k = [
+      ['Price date', snap.priceDate || '–', 'Prior: ' + (snap.priorDate || '–'), ''],
+      ['Financials', (snap.financialsSource || '–').replace(/^CIQ export, /, ''), 'Capital IQ exports', ''],
+      ['Errors', s.counts.error, 'value not written / broken calc', s.counts.error ? 'err' : ''],
+      ['For review', s.counts.review, 'banker judgement · ' + s.counts.reviewed + ' signed off', s.counts.review ? 'rev' : ''],
+      ['CIQ inbox', s.inboxCount + ' file' + (s.inboxCount === 1 ? '' : 's'), '<a target="_blank" href="' + s.inboxUrl + '">Open folder ↗</a>', '']
+    ];
+    var html = k.map(function (r) { return '<div class="kpi"><div class="k">' + r[0] + '</div><div class="v ' + r[3] + '">' + esc(r[1]) + '</div><div class="s">' + r[2] + '</div></div>'; }).join('');
+    $('#kpis').innerHTML = html;
+    if (MODE === 'sidebar') { $('#kpisSide').style.display = 'grid'; $('#kpisSide').innerHTML = html; }
+    renderComps(); renderExc(); renderQueue(); renderRuns();
+    $('#footer').innerHTML = 'Signed in as ' + esc(s.user) + ' · Data lives in <a target="_blank" href="' + s.sheetUrl + '">' + esc(s.sheetName) + '</a> · Every change is logged on the Audit Trail tab.';
+  }
+
+  function renderComps() {
+    var snap = STATE.snapshot;
+    var h = '<tr><th class="l">Company</th><th class="l">Ticker</th><th>Price</th><th>Δ w/w</th><th>Mkt cap</th><th>EV</th><th>LTM rev</th><th>LTM EBITDA</th><th>Growth</th><th>EV / Rev</th><th>EV / EBITDA</th><th class="l">Period</th><th class="l">Flags</th></tr>';
+    snap.groups.forEach(function (g) {
+      h += '<tr class="group"><td colspan="13">' + esc(g.name) + '</td></tr>';
+      g.companies.forEach(function (c) {
+        h += '<tr><td class="l">' + esc(c.name) + '</td><td class="l nm">' + esc(c.ticker) + '</td><td>' + n(c.price, 2) + '</td><td class="' + (c.change < 0 ? 'neg' : c.change > 0 ? 'pos' : '') + '">' + pc(c.change) + '</td><td>' + n(c.marketCap, 0) + '</td><td>' + n(c.ev, 0) + '</td><td>' + n(c.ltmRevenue, 0) + '</td><td>' + n(c.ltmEbitda, 0) + '</td><td>' + pc(c.revenueGrowth) + '</td><td>' + x(c.evRevenue) + '</td><td>' + x(c.evEbitda) + '</td><td class="l nm">' + esc(c.period) + '</td><td class="l"><span class="flag" title="' + esc(c.notes) + '">' + esc(c.notes) + '</span></td></tr>';
+      });
+      if (g.median) h += '<tr class="median"><td class="l">Median</td><td></td><td></td><td>' + pc(g.median.change) + '</td><td></td><td></td><td></td><td></td><td>' + pc(g.median.revenueGrowth) + '</td><td>' + esc(g.median.evRevenue) + '</td><td>' + esc(g.median.evEbitda) + '</td><td></td><td></td></tr>';
+    });
+    if (snap.allMedian) h += '<tr class="all"><td class="l">All companies median</td><td></td><td></td><td>' + esc(snap.allMedian.change) + '</td><td></td><td></td><td></td><td></td><td>' + esc(snap.allMedian.revenueGrowth) + '</td><td>' + esc(snap.allMedian.evRevenue) + '</td><td>' + esc(snap.allMedian.evEbitda) + '</td><td></td><td></td></tr>';
+    $('#comps').innerHTML = h;
+  }
+
+  function renderExc() {
+    var all = STATE.exceptions;
+    var open = all.filter(function (e) { return e.status !== 'Reviewed'; });
+    $('#cExc').textContent = open.filter(function (e) { return e.severity !== 'INFO'; }).length;
+    var rows = all.filter(function (e) {
+      if (SEV === 'open') return e.status !== 'Reviewed' && e.severity !== 'INFO';
+      if (SEV === 'Reviewed') return e.status === 'Reviewed';
+      return e.severity === SEV && e.status !== 'Reviewed';
+    });
+    if (!rows.length) { $('#exc').innerHTML = '<tr><td class="empty">Nothing here.</td></tr>'; return; }
+    var h = '<tr><th class="l"><input type="checkbox" id="all"></th><th class="l">Severity</th><th class="l">Area</th><th class="l">Company</th><th class="l">Field</th><th class="l">Issue</th><th class="l">Source</th><th class="l">Status</th></tr>';
+    rows.forEach(function (e) {
+      h += '<tr><td class="l"><input type="checkbox" class="ek" value="' + esc(e.key) + '"></td><td class="l"><span class="pill ' + e.severity + '">' + e.severity + '</span></td><td class="l nm">' + esc(e.category) + '</td><td class="l">' + esc(e.company || '(model)') + '</td><td class="l nm">' + esc(e.field) + '</td><td class="msg">' + esc(e.message) + (e.comment ? '<div class="nm" style="margin-top:4px">💬 ' + esc(e.comment) + ' · ' + esc(e.reviewedBy) + '</div>' : '') + '</td><td class="src">' + esc(e.source) + '</td><td class="l"><span class="pill ' + e.status + '">' + esc(e.status) + '</span></td></tr>';
+    });
+    $('#exc').innerHTML = h;
+    $('#all').onchange = function (ev) { document.querySelectorAll('.ek').forEach(function (c) { c.checked = ev.target.checked; }); };
+  }
+
+  function renderQueue() {
+    var q = STATE.queue;
+    var pending = q.filter(function (r) { return r.status === 'Ready' || r.status === 'Review'; });
+    $('#cQueue').textContent = pending.length;
+    $('#applyBtn').disabled = !pending.length;
+    if (!q.length) { $('#queue').innerHTML = '<tr><td class="empty">No pending import. Upload CIQ exports in step 2.</td></tr>'; $('#queueSummary').textContent = ''; return; }
+    var c = { Ready: 0, Review: 0, Blocked: 0, No: 0 };
+    q.forEach(function (r) { c[r.status.split(/[: ]/)[0]]++; });
+    $('#queueSummary').textContent = c.Ready + ' ready · ' + c.Review + ' need review · ' + c.Blocked + ' blocked (current value kept) · ' + c.No + ' unchanged';
+    var h = '<tr><th class="l">Apply</th><th class="l">Company</th><th class="l">Field</th><th>Current</th><th>Proposed</th><th>Change</th><th class="l">Status</th><th class="l">Flags</th><th class="l">Source</th></tr>';
+    q.filter(function (r) { return r.status !== 'No change'; }).forEach(function (r) {
+      var cls = r.status.split(/[: ]/)[0];
+      var fmtv = function (v) { return typeof v === 'number' ? (Math.abs(v) < 5 && r.field === 'Revenue growth' ? pc(v) : n(v, Math.abs(v) < 1000 ? 1 : 0)) : '<span class="nm">' + esc(v) + '</span>'; };
+      h += '<tr><td class="l"><input type="checkbox" class="qk" data-i="' + r.idx + '"' + (r.apply ? ' checked' : '') + (cls === 'Blocked' ? ' disabled' : '') + '></td><td class="l">' + esc(r.company) + '</td><td class="l nm">' + esc(r.field) + '</td><td>' + fmtv(r.current) + '</td><td><b>' + fmtv(r.proposed) + '</b></td><td>' + esc(r.change) + '</td><td class="l"><span class="pill ' + cls + '">' + esc(r.status) + '</span></td><td class="l nm">' + esc(r.flags) + '</td><td class="src">' + esc(r.tab + (r.cell ? '!' + r.cell : '')) + '<br>' + esc(r.label) + '</td></tr>';
+    });
+    $('#queue').innerHTML = h;
+    document.querySelectorAll('.qk').forEach(function (cb) { cb.onchange = function () { call('api_setQueue', [+cb.dataset.i], cb.checked); }; });
+  }
+
+  function renderRuns() {
+    var r = STATE.runs;
+    if (!r.length) { $('#runs').innerHTML = '<tr><td class="empty">No runs yet.</td></tr>'; return; }
+    $('#runs').innerHTML = '<tr><th class="l">When</th><th class="l">Type</th><th class="l">Trigger</th><th class="l">User</th><th class="l">Status</th><th class="l">Summary</th></tr>' + r.map(function (x) {
+      return '<tr><td class="l nm">' + (x.started ? new Date(x.started).toLocaleString() : '') + '</td><td class="l">' + esc(x.type) + '</td><td class="l nm">' + esc(x.trigger) + '</td><td class="l nm">' + esc(x.user) + '</td><td class="l"><span class="pill ' + esc(x.status) + '">' + esc(x.status) + '</span></td><td class="msg">' + esc(x.summary) + '</td></tr>';
+    }).join('');
+  }
+
+  // Actions
+  var ACTIONS = {
+    prices: { fn: 'api_refreshPrices', label: 'Fetching prices…' },
+    stage: { fn: 'api_stageImport', label: 'Reading exports…', tab: 'queue' },
+    apply: { fn: 'api_apply', label: 'Applying…', tab: 'comps' },
+    discard: { fn: 'api_discard', label: 'Discarding…' },
+    checks: { fn: 'api_checks', label: 'Checking…', tab: 'exc' },
+    report: { fn: 'api_report', label: 'Building report…' }
+  };
+  document.querySelectorAll('[data-act]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var a = ACTIONS[b.dataset.act]; var txt = b.innerHTML;
+      var go = function () {
+        b.disabled = true; b.innerHTML = '<span class="spin"></span>' + a.label;
+        return call(a.fn).then(function (r) {
+          if (b.dataset.act === 'report' && r.url) { window.open(r.url, '_blank'); toast('Validation report rebuilt. Opening the tab…'); }
+          else toast((r && (r.summary || r.message)) || 'Done.');
+          if (a.tab) showTab(a.tab);
+          return load();
+        }).catch(function (e) { toast(e.message || e, true); }).then(function () { b.disabled = false; b.innerHTML = txt; });
+      };
+      if (b.dataset.act === 'stage' && pendingFiles.length) uploadThen(go); else go();
+    });
+  });
+
+  // Upload
+  var pendingFiles = [];
+  var drop = $('#drop'), input = $('#file');
+  function setFiles(list) { pendingFiles = Array.prototype.slice.call(list).filter(function (f) { return /\.(xls|xlsx)$/i.test(f.name); }); $('#dropText').textContent = pendingFiles.length ? pendingFiles.length + ' file(s) ready: ' + pendingFiles.map(function (f) { return f.name.replace(/ Financials.*$/, ''); }).slice(0, 3).join(', ') + (pendingFiles.length > 3 ? '…' : '') : 'Drop .xls files here or click to choose'; $('#stageBtn').classList.toggle('primary', pendingFiles.length > 0); }
+  input.onchange = function () { setFiles(input.files); };
+  ['dragenter', 'dragover'].forEach(function (e) { drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.add('over'); }); });
+  ['dragleave', 'drop'].forEach(function (e) { drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.remove('over'); }); });
+  drop.addEventListener('drop', function (ev) { setFiles(ev.dataTransfer.files); });
+  function uploadThen(next) {
+    var b = $('#stageBtn'); b.disabled = true; b.innerHTML = '<span class="spin"></span>Uploading ' + pendingFiles.length + ' file(s)…';
+    Promise.all(pendingFiles.map(function (f) {
+      return new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res({ name: f.name, mimeType: f.type || 'application/vnd.ms-excel', data: String(r.result).split(',')[1] }); }; r.onerror = rej; r.readAsDataURL(f); });
+    })).then(function (files) {
+      // Send in small batches to stay well under Apps Script payload limits.
+      var chunks = []; for (var i = 0; i < files.length; i += 5) chunks.push(files.slice(i, i + 5));
+      return chunks.reduce(function (p, c) { return p.then(function () { return call('api_upload', c); }); }, Promise.resolve());
+    }).then(function () { setFiles([]); b.disabled = false; return next(); })
+      .catch(function (e) { b.disabled = false; toast('Upload failed: ' + (e.message || e), true); });
+  }
+
+  // Tabs and filters
+  function showTab(t) { document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x.dataset.tab === t); }); document.querySelectorAll('.panel').forEach(function (p) { p.classList.toggle('on', p.id === 'p-' + t); }); }
+  document.querySelectorAll('.tab').forEach(function (t) { t.onclick = function () { showTab(t.dataset.tab); }; });
+  document.querySelectorAll('[data-sev]').forEach(function (c) { c.onclick = function () { SEV = c.dataset.sev; document.querySelectorAll('[data-sev]').forEach(function (z) { z.classList.toggle('on', z === c); }); renderExc(); }; });
+  $('#signoff').onclick = function () {
+    var keys = Array.prototype.map.call(document.querySelectorAll('.ek:checked'), function (c) { return c.value; });
+    if (!keys.length) { toast('Tick the items to sign off first.'); return; }
+    call('api_review', keys, $('#comment').value).then(function (r) { toast(r.updated + ' item(s) signed off.'); $('#comment').value = ''; return load(); }).catch(function (e) { toast(e.message || e, true); });
+  };
+  if (MODE === 'sidebar') { document.querySelectorAll('.top, .hero').forEach(function (el) { el.remove(); }); }
+  load();
+</script>
+</body>
+</html>

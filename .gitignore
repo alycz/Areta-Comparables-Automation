@@ -1,0 +1,8 @@
+node_modules/
+.clasprc.json
+.DS_Store
+
+# Areta / Capital IQ case materials: kept out of the public repo
+ciq-exports/
+tests/fixtures/
+template/

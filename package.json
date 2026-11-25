@@ -1,0 +1,13 @@
+{
+  "name": "areta-comparables-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automates Areta's trading comparables model in Google Sheets (Apps Script)",
+  "scripts": {
+    "test": "node --test tests/core.test.js",
+    "simulate": "node tools/simulate.js",
+    "fixtures": "python3 tools/xls_to_fixture.py ciq-exports tests/fixtures",
+    "push": "clasp push -f",
+    "deploy": "clasp push -f && clasp update-deployment AKfycbxYmUhb8XKfC3ID9HT-FrAS_pXiMZ8VlWC_b6-tD3rw-93mP_5_TX-hNq20878UHxCkKA -d \"update\""
+  }
+}
