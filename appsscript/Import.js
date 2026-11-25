@@ -50,7 +50,12 @@ function readWorkbookFile(file) {
   var mime = file.getMimeType();
   var tempId = null, ssId = file.getId();
   if (mime !== SHEET_MIME) {
-    var converted = Drive.Files.create({ name: '[temp] ' + file.getName(), mimeType: SHEET_MIME, parents: [getFolders().root.getId()] }, file.getBlob());
+    // Excel content type by extension: files uploaded by browsers or APIs are often octet-stream,
+    // which Drive refuses to convert.
+    var blob = file.getBlob();
+    if (/\.xls$/i.test(file.getName())) blob.setContentType('application/vnd.ms-excel');
+    if (/\.xlsx$/i.test(file.getName())) blob.setContentType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    var converted = Drive.Files.create({ name: '[temp] ' + file.getName(), mimeType: SHEET_MIME, parents: [getFolders().root.getId()] }, blob);
     tempId = converted.id; ssId = converted.id;
   }
   try {
