@@ -183,7 +183,7 @@ function doGet(e) {
   t.mode = 'web';
   t.webAppUrl = webAppUrl_();
   t.hasPassword = !!PropertiesService.getScriptProperties().getProperty('WEB_PW_HASH');
-  return t.evaluate().setTitle('Areta Comparables Automation').addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  return t.evaluate().setTitle('Areta Comparables Automation').setFaviconUrl('https://alycz.github.io/Areta-Comparables-Automation/assets/favicon-32.png').addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
 /**
