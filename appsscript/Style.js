@@ -110,7 +110,7 @@ function brandPage_(sh, title, subtitle, widths) {
     var img = sh.insertImage(Utilities.newBlob(Utilities.base64Decode(LOGO_PNG_B64), 'image/png', 'areta.png'), 2, 3, 0, 4);
     img.setWidth(206).setHeight(45);
   } catch (e) { sh.getRange(3, 2).setValue('Areta').setFontSize(26).setFontWeight('bold').setFontColor(BRAND.ink); }
-  sh.getRange(3, n - 2, 1, 2).merge().setValue('COMPS ENGINE').setFontWeight('bold').setFontSize(9).setFontColor(BRAND.midnight).setHorizontalAlignment('right');
+  sh.getRange(3, n - 2, 1, 2).merge().setValue('COMPARABLES AUTOMATION').setFontWeight('bold').setFontSize(9).setFontColor(BRAND.midnight).setHorizontalAlignment('right');
   sh.getRange(4, 2, 1, span).merge().setValue(title).setFontFamily(FONT_TITLE).setFontSize(24).setFontColor(BRAND.ink);
   sh.setRowHeight(4, 46);
   if (subtitle) {
@@ -220,7 +220,7 @@ function buildStartHere_() {
   sh.getRange(r, 2, 2, 5).setBorder(null, null, null, null, true, null, '#FFFFFF', SpreadsheetApp.BorderStyle.SOLID_THICK);
   r += 3;
 
-  sectionTitle_(sh, r, 'How to use it: menu Areta Comps, in this order'); r++;
+  sectionTitle_(sh, r, 'How to use it: menu Comparables Automation, in this order'); r++;
   [
     ['1. Import CIQ exports', 'When companies report: drop their Capital IQ "Financials" exports in the CIQ inbox (link below), then run step 1. Each file is matched by ticker, read, and reconciled to CIQ. Results land on the Review Queue tab.'],
     ['2. Apply financial changes', 'Look over the Review Queue: Ready = passed every check, Review = flagged for judgement, Blocked = never written. Untick anything you disagree with, then run step 2. Only the blue input cells change, and the queue empties once applied.'],
@@ -234,7 +234,7 @@ function buildStartHere_() {
   sectionTitle_(sh, r, 'Links'); r++;
   var links = [];
   try { links.push(['CIQ inbox', 'Drop new Capital IQ exports here', getFolders().inbox.getUrl()]); } catch (e) { /* not set up */ }
-  try { var w = webAppUrl_(); if (w) links.push(['Web dashboard', 'Same steps in a browser page. Sign in with the web app password (Tools › Set web app password).', w]); } catch (e) { /* none */ }
+  try { links.push(['Web dashboard', 'Same steps in any browser. Sign in with the web app password (Tools › Set web app password).', portalUrl_()]); } catch (e) { /* none */ }
   links.forEach(function (l) {
     sh.getRange(r, 2).setValue(l[0]).setFontWeight('bold').setFontColor(BRAND.ink);
     sh.getRange(r, 3, 1, 3).merge().setValue(l[1]).setFontColor('#3C4043').setWrap(true);
@@ -285,7 +285,7 @@ function buildReadMe_() {
       for (var c = 0; c < vals[i].length; c++) {
         var t = String(vals[i][c]).trim();
         if (!t) continue;
-        if (/^Automation \(Areta Comps engine\)/.test(t) || t === 'COMPS ENGINE') { i = vals.length; break; }
+        if (/^Automation \(Areta Comp/.test(t) || t === 'COMPS ENGINE' || t === 'COMPARABLES AUTOMATION') { i = vals.length; break; }
         src.push({ h: weights[i][c] === 'bold', t: t });
         break;
       }
@@ -306,9 +306,9 @@ function buildReadMe_() {
   });
   r++;
   sectionTitle_(sh, r, 'Automation'); r++;
-  labelRow_(sh, r, 'Areta Comps engine', 'Prices, CIQ imports, checks and the validation report are automated. The Start Here tab lists the steps in order; run them from the Areta Comps menu or the web dashboard.', { min: 30 }); r++;
+  labelRow_(sh, r, 'Areta Comparables Automation', 'Prices, CIQ imports, checks and the validation report are automated. The Start Here tab lists the steps in order; run them from the Areta Comps menu or the web dashboard.', { min: 30 }); r++;
   labelRow_(sh, r, 'Colour conventions', 'Unchanged. The engine only writes yellow (weekly) and blue (quarterly) input cells, and keeps the black formula cells as formulas.', { min: 30 }); r++;
   r++;
-  footer_(sh, r, 'Text above is from the Areta comps template; layout by the Areta Comps engine.');
+  footer_(sh, r, 'Text above is from the Areta comps template; layout by the Areta Comparables Automation.');
   finishPage_(sh, r);
 }

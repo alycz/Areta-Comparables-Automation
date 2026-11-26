@@ -18,7 +18,7 @@ html = html
   .replace(/<\?= hasPassword \? '([^']*)' :[\s\S]*?\?>/, '$1')
   .replace('<script>', '<script>window.ARETA_API_URL = ' + JSON.stringify(url) + ';</script>\n<script>');
 if (/<\?/.test(html)) throw new Error('Unresolved template tag: ' + html.match(/<\?.{0,60}/)[0]);
-html = html.replace('<head>', '<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Areta Comps</title>');
+html = html.replace('<head>', '<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Areta Comparables Automation</title>');
 fs.writeFileSync(path.join(root, 'docs/index.html'), html);
 fs.writeFileSync(path.join(root, 'docs/.nojekyll'), '');
 console.log('docs/index.html built for', url);

@@ -1,4 +1,4 @@
-# Areta Comps Engine
+# Areta Comparables Automation
 
 Automates Areta's trading comparables model in **Google Sheets**. It does three things:
 - refreshes share prices on a schedule;
@@ -19,7 +19,7 @@ On the supplied data, all 20 exports parse and 200 fields are extracted. Market 
 
 ## How a banker uses it
 
-The one-page version is [docs/BANKER_GUIDE.md](docs/BANKER_GUIDE.md). The Sheet opens on a **Start Here** tab, which shows the live status, these steps and the links. The **Areta Comps** menu is numbered in run order:
+The one-page version is [docs/BANKER_GUIDE.md](docs/BANKER_GUIDE.md). The Sheet opens on a **Start Here** tab, which shows the live status, these steps and the links. The **Comparables Automation** menu is numbered in run order:
 
 | Menu | What it does | When |
 |---|---|---|
@@ -115,14 +115,14 @@ Where CIQ shows no EBITDA (financial template), the engine uses **implied EBITDA
 ### Using the deployed copy
 
 - The Sheet is *Areta Trading Comps*, in the Drive folder *Areta Comps — Areta Trading Comps*.
-- Open it, then run **Areta Comps › Set up / reinstall schedule** once and approve the permissions. Setup installs formulas, the Config tab, the log tabs, the Drive inbox and the weekly trigger. It is idempotent.
+- Open it, then run **Comparables Automation › Set up / reinstall schedule** once and approve the permissions. Setup installs formulas, the Config tab, the log tabs, the Drive inbox and the weekly trigger. It is idempotent.
 
 ### Independent test by Areta (a fresh copy)
 
 1. **File › Make a copy** of the Sheet. The script is copied with it.
-2. In the copy: **Areta Comps › Set up**, then approve the permissions. Google shows "unverified app" for any private script: click *Advanced › Go to Areta Comps Engine*.
-3. **Areta Comps › Open CIQ inbox folder** and drop in the 20 CIQ exports.
-4. **Areta Comps › Open dashboard**, then click **Read & validate exports**, **Apply changes**, **Refresh prices now** and **Build report** in turn.
+2. In the copy: **Comparables Automation › Set up**, then approve the permissions. Google shows "unverified app" for any private script: click *Advanced › Go to Areta Comparables Automation*.
+3. **Comparables Automation › Open CIQ inbox folder** and drop in the 20 CIQ exports.
+4. **Comparables Automation › Open dashboard**, then click **Read & validate exports**, **Apply changes**, **Refresh prices now** and **Build report** in turn.
 5. *(Optional, for the web app)* **Extensions › Apps Script › Deploy › New deployment › Web app**. Set *Execute as: User accessing* and *Who has access: Anyone with a Google account*.
 
 ### For a developer (from this repo)

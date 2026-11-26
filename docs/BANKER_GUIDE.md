@@ -1,6 +1,6 @@
-# Areta Comps: banker guide (1 page)
+# Areta Comparables Automation: banker guide (1 page)
 
-**Where:** open the Areta Comps web app, or the Sheet *Areta Trading Comps* and then **Areta Comps › Open dashboard**.
+**Where:** open the Comparables Automation web app, or the Sheet *Areta Trading Comps* and then **Comparables Automation › Open dashboard**.
 
 ## Every week: nothing to do
 Prices refresh automatically on Monday morning, London time. The model recalculates, and last week's close becomes the prior price. Need fresh numbers before a client call? Click **Refresh prices now**.
@@ -27,4 +27,4 @@ Companies you didn't upload keep their current numbers.
 - Make a judgement call for you, e.g. FX convention, implied EBITDA, a press-release period, or broker debt.
 
 ## Changing things (no code)
-Use the **Config** tab: schedule, alert thresholds, who can use the web app, and Google Finance ticker overrides. To add a company, add a row on Comps with its CIQ ticker and run **Areta Comps › Set up**.
+Use the **Config** tab: schedule, alert thresholds, who can use the web app, and Google Finance ticker overrides. To add a company, add a row on Comps with its CIQ ticker and run **Comparables Automation › Set up**.

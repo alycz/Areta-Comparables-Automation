@@ -103,15 +103,17 @@
   @media (max-width: 640px) { .top, .hero, main { padding-left: 16px; padding-right: 16px; } .steps, .kpis { grid-template-columns: 1fr; } .hero h1 { font-size: 30px; } }
   .login { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; padding: 16px; background: linear-gradient(115deg, #fff 0%, #fff 40%, var(--frost) 100%); }
   .login.on { display: grid; }
-  .login form { width: 100%; max-width: 380px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 32px 28px; box-shadow: 0 20px 60px rgba(0,43,153,.08); display: flex; flex-direction: column; gap: 14px; }
-  .login .logo { height: 30px; color: var(--ink); }
-  .login h2 { margin: 6px 0 0; font-size: 26px; font-weight: 400; }
-  .login p { margin: 0; color: var(--muted); font-size: 13px; }
+  .login form { width: 100%; max-width: 400px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 40px 32px 32px; box-shadow: 0 20px 60px rgba(0,43,153,.08); display: flex; flex-direction: column; gap: 14px; }
+  .login .logo { height: 34px; color: var(--ink); align-self: center; margin-bottom: 14px; }
+  .login h2 { margin: 0; font-size: 32px; font-weight: 400; text-align: center; line-height: 1.15; }
+  .login p { margin: 0 0 8px; color: var(--muted); font-size: 13px; text-align: center; }
   .login label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; display: flex; flex-direction: column; gap: 6px; }
   .login input { font: inherit; font-size: 15px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; text-transform: none; letter-spacing: 0; color: var(--ink); }
   .login input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--frost); }
   .login button { padding: 11px 16px; font-size: 15px; }
-  .login .err { color: var(--err); font-size: 13px; min-height: 18px; }
+  .login .err { color: var(--err); font-size: 13px; }
+  .login .err:empty { display: none; }
+  .login button { margin-top: 6px; }
   .signout { display: none; }
   body.web.authed .signout { display: inline-block; }
 </style>
@@ -120,8 +122,8 @@
   <div class="login" id="login">
     <form id="loginForm" autocomplete="on">
       <?!= include('ui/Logo') ?>
-      <h2 class="serif">Comps engine</h2>
-      <p><?= hasPassword ? 'Sign in to run and review the trading comps model.' : 'No password set yet. The model owner sets one in the Sheet: Areta Comps › Tools › Set web app password.' ?></p>
+      <h2 class="serif">Comparables Automation</h2>
+      <p><?= hasPassword ? 'Sign in to run and review the trading comps model.' : 'No password set yet. The model owner sets one in the Sheet: Comparables Automation › Tools › Set web app password.' ?></p>
       <label>Your name or email<input id="lgName" name="username" autocomplete="username" placeholder="For the audit trail"></label>
       <label>Password<input id="lgPw" name="password" type="password" autocomplete="current-password" required></label>
       <div class="err" id="lgErr"></div>
@@ -129,7 +131,7 @@
     </form>
   </div>
   <div class="top">
-    <div class="lockup"><?!= include('ui/Logo') ?><span class="sub">COMPS</span></div>
+    <div class="lockup"><?!= include('ui/Logo') ?><span class="sub">COMPARABLES AUTOMATION</span></div>
     <div class="spacer"></div>
     <span class="user" id="user"></span>
     <button class="ghost" onclick="load()">Refresh view</button>
@@ -149,7 +151,7 @@
 
   <main>
     <div class="wrap">
-      <div class="side-head"><?!= include('ui/Logo') ?><div style="font-weight:700;letter-spacing:.14em;font-size:11px;margin-top:4px">COMPS ENGINE</div></div>
+      <div class="side-head"><?!= include('ui/Logo') ?><div style="font-weight:700;letter-spacing:.14em;font-size:11px;margin-top:4px">COMPARABLES AUTOMATION</div></div>
       <div class="kpis" id="kpisSide" style="display:none"></div>
 
       <div class="steps">

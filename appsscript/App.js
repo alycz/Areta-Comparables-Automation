@@ -8,7 +8,7 @@ function ss_() {
   try { active = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) { active = null; }
   if (active) return active;
   var id = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
-  if (!id) throw new Error('Spreadsheet not linked. Open the Sheet and run Areta Comps › Set up.');
+  if (!id) throw new Error('Spreadsheet not linked. Open the Sheet and run Comparables Automation › Set up.');
   return SpreadsheetApp.openById(id);
 }
 
@@ -88,9 +88,9 @@ function menuOpenInbox() {
 }
 
 function menuOpenWebApp() {
-  var url = webAppUrl_();
+  var url = portalUrl_();
   var body = url
-    ? '<a target="_blank" href="' + url + '">Open the Areta Comps web app</a><p style="color:#5F6368;font-size:12px">' + (PropertiesService.getScriptProperties().getProperty('WEB_PW_HASH') ? 'Sign in with the web app password.' : 'Set a password first: Tools › Set web app password.') + '</p>'
+    ? '<a target="_blank" href="' + url + '">Open the Comparables Automation web app</a><p style="color:#5F6368;font-size:12px">' + (PropertiesService.getScriptProperties().getProperty('WEB_PW_HASH') ? 'Sign in with the web app password.' : 'Set a password first: Tools › Set web app password.') + '</p>'
     : 'The web app is not deployed for this copy. See README › Independent test, step 5.';
   SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutput('<div style="font-family:sans-serif">' + body + '</div>').setWidth(360).setHeight(130), 'Web app');
 }
@@ -129,7 +129,7 @@ function setup() {
   var trig = installTriggers();
   var run = startRun('setup', 'manual');
   finishRun(run, 'OK', 'Installed ' + n + ' formulas; ' + trig);
-  var pwNote = props.getProperty('WEB_PW_HASH') ? '' : '\n\nWeb dashboard: set its password with Areta Comps › Tools › Set web app password.';
+  var pwNote = props.getProperty('WEB_PW_HASH') ? '' : '\n\nWeb dashboard: set its password with Comparables Automation › Tools › Set web app password.';
   return {
     message: 'Formulas installed (' + n + '). ' + trig + '\n\nCIQ inbox: ' + folders.inbox.getUrl() + pwNote,
     inboxUrl: folders.inbox.getUrl()
@@ -169,7 +169,7 @@ function installTriggers() {
  * The web app is published "Anyone" (no Google sign-in) and runs as the deploying
  * account. Google's sign-in hop is what breaks with several signed-in accounts
  * ("Page not found"), so the portal uses its own password instead:
- *   - password set from the Sheet (Areta Comps › Tools › Set web app password),
+ *   - password set from the Sheet (Comparables Automation › Tools › Set web app password),
  *     stored only as a salted SHA-256 hash in Script Properties;
  *   - login returns a signed token (HMAC-SHA256, 12 h expiry) that every API call carries;
  *   - from the Sheet sidebar no token is needed: the caller is a signed-in editor.
@@ -183,7 +183,7 @@ function doGet(e) {
   t.mode = 'web';
   t.webAppUrl = webAppUrl_();
   t.hasPassword = !!PropertiesService.getScriptProperties().getProperty('WEB_PW_HASH');
-  return t.evaluate().setTitle('Areta Comps').addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  return t.evaluate().setTitle('Areta Comparables Automation').addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
 /**
@@ -231,6 +231,10 @@ function isAllowed_(email) {
   return list.indexOf(String(email || '').toLowerCase()) >= 0;
 }
 
+/** Public dashboard (GitHub Pages; talks to doPost). Override with Script Property PORTAL_URL for another host. */
+var DEFAULT_PORTAL_URL = 'https://alycz.github.io/Areta-Comparables-Automation/';
+function portalUrl_() { try { return PropertiesService.getScriptProperties().getProperty('PORTAL_URL') || DEFAULT_PORTAL_URL; } catch (e) { return DEFAULT_PORTAL_URL; } }
+
 function webAppUrl_() { try { return ScriptApp.getService().getUrl() || ''; } catch (e) { return ''; } }
 
 function hex_(bytes) { return bytes.map(function (b) { return ('0' + (b & 0xff).toString(16)).slice(-2); }).join(''); }
@@ -259,14 +263,14 @@ function menuSetWebPassword() {
   var r = ui.prompt('Web app password', 'Choose a password for the web dashboard (at least 8 characters). Share it only with people who should run the model. Changing it signs everyone out.', ui.ButtonSet.OK_CANCEL);
   if (r.getSelectedButton() !== ui.Button.OK) return;
   try { setWebPassword_(r.getResponseText()); } catch (e) { ui.alert(e.message); return; }
-  ui.alert('Password set', 'Open the web app here:\n\n' + (webAppUrl_() || '(not deployed)') + '\n\nIt works in any browser, signed in to Google or not.', ui.ButtonSet.OK);
+  ui.alert('Password set', 'Open the web app here:\n\n' + portalUrl_() + '\n\nIt works in any browser, signed in to Google or not.', ui.ButtonSet.OK);
 }
 
 /** Web login. Returns a token, or throws. */
 function api_login(name, pw) {
   var props = PropertiesService.getScriptProperties();
   var hash = props.getProperty('WEB_PW_HASH'), salt = props.getProperty('WEB_PW_SALT');
-  if (!hash) throw new Error('No password set yet. In the Sheet: Areta Comps › Tools › Set web app password.');
+  if (!hash) throw new Error('No password set yet. In the Sheet: Comparables Automation › Tools › Set web app password.');
   Utilities.sleep(400); // slows guessing
   if (pwHash_(String(pw || ''), salt) !== hash) throw new Error('Wrong password.');
   name = String(name || '').trim().slice(0, 80) || 'web user';

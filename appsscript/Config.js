@@ -5,7 +5,7 @@
  * Nothing here needs editing for normal use.
  */
 
-var APP_NAME = 'Areta Comps';
+var APP_NAME = 'Comparables Automation';
 
 var SHEETS = {
   COMPS: 'Comps',
@@ -96,7 +96,7 @@ function ensureConfigSheet(companies) {
   var existingTickers = getTickerMap();
   sh.clear();
   sh.getRange(1, 1, sh.getMaxRows(), sh.getMaxColumns()).breakApart();
-  var top = brandPage_(sh, 'Configuration', 'Everything the engine does is driven from this tab. Change the yellow cells; no code is needed. Schedule changes apply after Areta Comps › Tools › Set up; ticker changes apply on the next price refresh.', [28, 230, 190, 170, 150, 330, 28]);
+  var top = brandPage_(sh, 'Configuration', 'Everything the engine does is driven from this tab. Change the yellow cells; no code is needed. Schedule changes apply after Comparables Automation › Tools › Set up; ticker changes apply on the next price refresh.', [28, 230, 190, 170, 150, 330, 28]);
   var r = top;
 
   sectionTitle_(sh, r, 'Settings', 5); r++;

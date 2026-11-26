@@ -112,7 +112,7 @@ function buildValidationReport(opts) {
   ].forEach(function (t) { full(row, '•  ' + t).setWrap(true).setFontColor('#3C4043'); sh.setRowHeight(row, textHeight_(t, 1300)); row++; });
 
   row++;
-  footer_(sh, row, 'Areta Comps engine · every value on the Comps tab traces to a CIQ cell or a saved price on the Audit Trail and Price History tabs.');
+  footer_(sh, row, 'Areta Comparables Automation · every value on the Comps tab traces to a CIQ cell or a saved price on the Audit Trail and Price History tabs.');
 
   finishPage_(sh, row);
   SpreadsheetApp.flush();
