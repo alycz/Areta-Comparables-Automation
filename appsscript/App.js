@@ -50,7 +50,7 @@ function menuRunAll() {
   var ui = SpreadsheetApp.getUi();
   var ok = ui.alert('Run all steps', 'This will:\n\n1. Import any CIQ exports in the inbox\n2. Apply every change that passed validation (Ready and Review). Blocked values are never written.\n3. Refresh share prices\n4. Run checks\n5. Build the validation report\n\nItems needing judgement stay open on the Exceptions tab for sign-off. Continue?', ui.ButtonSet.OK_CANCEL);
   if (ok !== ui.Button.OK) return;
-  var r = runAll({ trigger: 'manual' });
+  var r = runAll({ trigger: 'run-all' });
   ui.alert('Run all: done', r.lines.join('\n'), ui.ButtonSet.OK);
   ss_().getSheetByName(REPORT_SHEET).activate();
 }
@@ -205,6 +205,7 @@ var API_ = {
   api_repair: function (a) { return api_repair(a[0]); },
   api_review: function (a) { return api_review(a[0], a[1], a[2]); },
   api_report: function (a) { return api_report(a[0]); },
+  api_checkReport: function (a) { return api_checkReport(a[0]); },
   api_runAll: function (a) { return api_runAll(a[0]); }
 };
 
@@ -336,5 +337,11 @@ function api_checks(token) { guard_(token); return runModelChecks({ trigger: 'ma
 function api_repair(token) { guard_(token); return repairFormulas(); }
 function api_review(token, keys, comment) { guard_(token); return { updated: markExceptionsReviewed(keys, comment) }; }
 function api_report(token) { guard_(token); var r = buildValidationReport(); return { url: ss_().getUrl() + '#gid=' + r.gid, pdfUrl: r.pdfUrl }; }
-function api_runAll(token) { guard_(token); var r = runAll({ trigger: 'manual' }); return { summary: r.lines.join(' · ') }; }
+function api_checkReport(token) {
+  guard_(token);
+  var c = runModelChecks({ trigger: 'manual' });
+  var r = buildValidationReport();
+  return { summary: c.summary + ' Validation report rebuilt' + (r.pdfUrl ? ' and a dated PDF saved to Drive.' : '.'), url: ss_().getUrl() + '#gid=' + r.gid, pdfUrl: r.pdfUrl };
+}
+function api_runAll(token) { guard_(token); var r = runAll({ trigger: 'run-all' }); return { summary: r.lines.join(' · ') }; }
 function api_setup(token) { guard_(token); return setup(); }

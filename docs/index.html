@@ -101,7 +101,20 @@
   .section-h { display: flex; align-items: baseline; gap: 14px; margin: 0 0 16px; }
   .section-h h2 { margin: 0; font-size: 26px; line-height: 1.1; }
   .section-h p { margin: 0; color: var(--muted); font-size: 13.5px; }
-  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+  .step.all { background: linear-gradient(160deg, var(--blue) 0%, var(--midnight) 100%); border-color: transparent; color: #fff; overflow: hidden; }
+  .step.all:after { content: ''; position: absolute; right: -40px; top: -40%; width: 120px; height: 180%; background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.12) 45%, rgba(255,255,255,0)); transform: skewX(-24deg); pointer-events: none; }
+  .step.all .n { color: rgba(255,255,255,.55); } .step.all p { color: rgba(255,255,255,.78); }
+  .step.all:hover { box-shadow: 0 12px 32px rgba(0,43,153,.28); }
+  button.light { background: #fff; border-color: #fff; color: var(--midnight); }
+  button.light:hover { background: var(--frost); border-color: var(--frost); }
+  .last { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--faint); border-top: 1px solid var(--line-2); padding-top: 12px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .last .dot { width: 6px; height: 6px; border-radius: 50%; background: #C8CEDB; flex: none; }
+  .last.good .dot { background: #1E9E5A; } .last.warn .dot { background: #D99A00; } .last.bad .dot { background: var(--err); }
+  .step.all .last { border-top-color: rgba(255,255,255,.16); color: rgba(255,255,255,.7); }
+  .step.all .last .dot { background: rgba(255,255,255,.6); } .step.all .last.good .dot { background: #6EE7A8; }
+  .rf { display: inline-block; transition: transform .5s var(--ease-out); }
+  #refreshBtn:hover .rf { transform: rotate(180deg); }
   .step { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm);
     transition: transform .3s var(--ease-out), box-shadow .3s var(--ease-out), border-color .3s var(--ease-out); }
   .step:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #D6DDEE; }
@@ -109,7 +122,8 @@
   .step h3 { margin: 4px 0 0; font-size: 16.5px; font-weight: 600; letter-spacing: -.01em; }
   .step p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; flex: 1; }
   .step .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
-  .step .acts button { flex: 1; }
+  .step .acts { flex-wrap: nowrap; }
+  .step .acts button { flex: 1 1 auto; min-width: 0; padding: 9px 12px; }
   .drop { display: flex; align-items: center; justify-content: center; gap: 8px; border: 1.5px dashed #C5D3F6; border-radius: var(--r-md); padding: 12px; text-align: center; color: var(--muted); font-size: 13px; background: var(--frost-2); cursor: pointer;
     transition: background-color .2s var(--ease-out), border-color .2s var(--ease-out), color .2s var(--ease-out), transform .2s var(--ease-out); }
   .drop:hover { border-color: var(--midday); color: var(--midnight); }
@@ -177,7 +191,21 @@
   .empty { padding: 56px 24px; text-align: center; color: var(--muted); white-space: normal; }
   .empty .em { font-family: 'Benne', Georgia, serif; font-size: 22px; color: var(--ink); display: block; margin-bottom: 6px; }
   .foot { color: var(--muted); font-size: 12.5px; margin-top: 16px; line-height: 1.6; }
-  input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; }
+  /* Checkbox: rounded square, brand fill, drawn tick that scales in. */
+  input[type=checkbox] { -webkit-appearance: none; appearance: none; margin: 0; width: 18px; height: 18px; border-radius: 6px; border: 1.5px solid #C5CCDB; background: #fff; cursor: pointer; display: inline-grid; place-items: center; vertical-align: middle;
+    transition: background-color .18s var(--ease-out), border-color .18s var(--ease-out), box-shadow .18s var(--ease-out), transform .12s var(--ease-out); }
+  input[type=checkbox]:hover { border-color: var(--midday); box-shadow: 0 0 0 4px var(--frost-2); }
+  input[type=checkbox]:active { transform: scale(.9); }
+  input[type=checkbox]::after { content: ''; width: 10px; height: 10px; transform: scale(0); transition: transform .2s var(--ease-out);
+    background: center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.3 5 8.6 9.6 3.6' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+  input[type=checkbox]:checked { background: var(--blue); border-color: var(--blue); }
+  input[type=checkbox]:checked::after { transform: scale(1); }
+  input[type=checkbox]:disabled { opacity: .4; cursor: not-allowed; }
+  input[type=checkbox]:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  th input[type=checkbox] { border-color: rgba(255,255,255,.55); background: transparent; }
+  th input[type=checkbox]:hover { border-color: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,.12); }
+  th input[type=checkbox]:checked { background: #fff; border-color: #fff; }
+  th input[type=checkbox]::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.3 5 8.6 9.6 3.6' fill='none' stroke='%23002B99' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
 
   /* Toast: slides up from its corner, interruptible. */
   .toast { position: fixed; right: 24px; bottom: 24px; max-width: 460px; background: var(--ink); color: #fff; padding: 14px 18px; border-radius: 14px; box-shadow: var(--shadow-lg); z-index: 60; line-height: 1.45; font-size: 13.5px;
@@ -231,6 +259,7 @@
   body.sidebar .side-head .logo { height: 20px; }
   body.sidebar .rise { opacity: 1; transform: none; }
 
+  @media (max-width: 1280px) { .steps { grid-template-columns: repeat(3, minmax(0,1fr)); } }
   @media (max-width: 1100px) { .kpis { grid-template-columns: repeat(3, minmax(0,1fr)); } .steps { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 720px) {
     .wrap { padding: 0 16px; } .top .wrap { height: 60px; } .lockup .div, .lockup .sub, .who, .top .hide-sm { display: none; }
@@ -319,8 +348,8 @@
   <section class="hero">
     <div class="glow"></div><div class="slash"></div>
     <div class="wrap" style="position:relative">
-      <div class="eyebrow rise" style="--i:0">Trading comparables</div>
-      <h1 class="serif rise" style="--i:1">Exchanges &amp; Trading Infrastructure</h1>
+      <div class="eyebrow rise" style="--i:0" id="eyebrow">Trading comparables</div>
+      <h1 class="serif rise" style="--i:1" id="title">Exchanges &amp; Trading Infrastructure</h1>
       <div class="sched rise" style="--i:2"><span class="pulse"></span><span id="schedule">Connecting to the model…</span></div>
       <div class="kpis" id="kpis">
         <div class="kpi rise" style="--i:3"><div class="k">Price date</div><span class="sk"></span></div>
@@ -358,39 +387,49 @@
 <div style="font-weight:600;letter-spacing:.16em;font-size:10.5px;margin-top:6px;color:var(--midnight)">COMPARABLES AUTOMATION</div></div>
       <div class="kpis" id="kpisSide" style="display:none"></div>
 
-      <div class="section-h rise" style="--i:8"><h2 class="serif">Workflow</h2><p>Run in order, or use Run all steps.</p></div>
+      <div class="section-h rise" style="--i:8"><h2 class="serif">Workflow</h2><p>Each step can run on its own. Step 05 runs the whole cycle in one go.</p></div>
       <div class="steps">
         <div class="step rise" style="--i:9">
           <div class="n">01</div><h3>Import CIQ exports</h3>
-          <p>Drop Capital IQ "Financials" exports for companies that have reported. Each file is matched by ticker and reconciled to CIQ. Others keep their numbers.</p>
-          <label class="drop" id="drop"><input type="file" id="file" multiple accept=".xls,.xlsx" hidden><span id="dropText">Drop .xls files or click to choose</span></label>
+          <p>Drop the Capital IQ "Financials" export for each company that has reported. Files are matched by ticker and reconciled to CIQ.</p>
+          <label class="drop" id="drop"><input type="file" id="file" multiple accept=".xls,.xlsx" hidden><span id="dropText">Drop .xls files or browse</span></label>
           <div class="acts"><button data-act="stage" id="stageBtn">Read &amp; validate</button></div>
+          <div class="last" data-run="import"></div>
         </div>
         <div class="step rise" style="--i:10">
           <div class="n">02</div><h3>Review &amp; apply</h3>
-          <p>Every proposed change with its CIQ source cell. Blocked items never reach the model; Apply writes only the blue input cells.</p>
-          <div class="acts"><button class="primary" data-act="apply" id="applyBtn">Apply changes</button><button data-act="discard">Discard</button></div>
+          <p>Check each proposed change against its CIQ source cell. Blocked values never reach the model; only blue input cells are written.</p>
+          <div class="acts"><button data-act="discard">Discard</button><button class="primary" data-act="apply" id="applyBtn">Apply changes</button></div>
+          <div class="last" data-run="apply"></div>
         </div>
         <div class="step rise" style="--i:11">
-          <div class="n">03</div><h3>Share prices</h3>
-          <p>Refreshes automatically every week. Google Finance, cross-checked against a second source, with last week's close kept as the prior price.</p>
+          <div class="n">03</div><h3>Refresh share prices</h3>
+          <p>Runs automatically every Monday. Google Finance, cross-checked against a second source; last week's close becomes the prior price.</p>
           <div class="acts"><button class="primary" data-act="prices">Refresh prices</button></div>
+          <div class="last" data-run="prices"></div>
         </div>
         <div class="step rise" style="--i:12">
-          <div class="n">04</div><h3>Controls &amp; report</h3>
-          <p>Recalculates every formula independently, checks for hardcodes and errors, and rebuilds the validation report with a dated PDF.</p>
-          <div class="acts"><button data-act="checks">Run checks</button><button data-act="report">Build report</button></div>
+          <div class="n">04</div><h3>Check &amp; report</h3>
+          <p>Recalculates every formula independently, flags hardcodes, errors and outliers, then rebuilds the validation report with a dated PDF.</p>
+          <div class="acts"><button class="primary" data-act="checkreport">Check &amp; build report</button></div>
+          <div class="last" data-run="checks"></div>
+        </div>
+        <div class="step all rise" style="--i:13">
+          <div class="n">05</div><h3>Run all steps</h3>
+          <p>Steps 01 to 04 in order. Ready and Review items are applied; Blocked values are never written. Judgement items stay open for sign-off.</p>
+          <div class="acts"><button class="light" data-act="runall"><span class="ico">▶</span>Run all steps</button></div>
+          <div class="last" data-run="__all"></div>
         </div>
       </div>
 
-      <div class="tabs rise" style="--i:13" id="tabs">
+      <div class="tabs rise" style="--i:14" id="tabs">
         <button class="tab on" data-tab="comps">Comparables</button>
         <button class="tab" data-tab="exc">Exceptions <span class="c" id="cExc">0</span></button>
         <button class="tab" data-tab="queue">Review queue <span class="c" id="cQueue">0</span></button>
         <button class="tab" data-tab="runs">Activity</button>
         <span class="ind" id="ind"></span>
         <div class="spacer"></div>
-        <div class="tabacts"><button class="ghost" onclick="load(true)"><span class="ico">↻</span>Refresh</button><button data-act="runall" class="primary"><span class="ico">▶</span>Run all steps</button></div>
+        <div class="tabacts"><button class="ghost" id="refreshBtn" onclick="load(true)" title="Reload the latest data from the Sheet"><span class="ico rf">↻</span>Refresh data</button></div>
       </div>
 
       <div class="panel on" id="p-comps"><div class="card"><div class="scroll"><table id="comps"></table></div></div>
@@ -505,6 +544,9 @@
     var s = STATE, snap = s.snapshot;
     var set = function (sel, t) { var el = $(sel); if (el) el.textContent = t; };
     var who = String(s.user || '').replace(/ \(web\)$/, '');
+    if (snap.title) set('#title', snap.title);
+    set('#eyebrow', (snap.titleSub || 'Trading comparables') + (snap.companyCount ? ' · ' + snap.companyCount + ' companies · ' + snap.groupCount + ' peer groups' : ''));
+    renderLast();
     set('#user', who); set('#av', initials(who)); set('#av2', initials(who)); set('#schedule', s.schedule);
     ['#openModel', '#openModel2'].forEach(function (id) { if ($(id)) $(id).onclick = function () { window.open(s.sheetUrl, '_blank'); }; });
     var fin = String(snap.financialsSource || '');
@@ -528,6 +570,20 @@
     $('#footer').innerHTML = 'Signed in as ' + esc(who) + ' · Data lives in the Google Sheet <a target="_blank" href="' + esc(s.sheetUrl) + '">' + esc(s.sheetName) + '</a> · Every change is logged on its Audit Trail tab.';
     FIRST = false;
     moveInd();
+  }
+
+  // "Last run" line under each workflow card, from the Run Log.
+  function renderLast() {
+    var runs = STATE.runs || [];
+    document.querySelectorAll('.last[data-run]').forEach(function (el) {
+      var t = el.dataset.run, r = null;
+      for (var i = 0; i < runs.length; i++) { if (t === '__all' ? /run-all/.test(runs[i].trigger) : runs[i].type === t) { r = runs[i]; break; } }
+      if (!r) { el.innerHTML = '<span class="dot"></span>Not run yet'; el.className = 'last'; return; }
+      var when = r.started ? new Date(r.started).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+      el.className = 'last ' + (r.status === 'Failed' ? 'bad' : r.status === 'OK' ? 'good' : 'warn');
+      el.innerHTML = '<span class="dot"></span>Last run ' + esc(when) + (r.trigger === 'scheduled' ? ' · scheduled' : '');
+      el.title = r.summary || '';
+    });
   }
 
   function renderComps() {
@@ -602,6 +658,7 @@
     discard: { fn: 'api_discard', label: 'Discarding' },
     checks: { fn: 'api_checks', label: 'Checking', tab: 'exc' },
     report: { fn: 'api_report', label: 'Building' },
+    checkreport: { fn: 'api_checkReport', label: 'Checking', tab: 'exc' },
     runall: { fn: 'api_runAll', label: 'Running 1 → 5', tab: 'exc' }
   };
   document.querySelectorAll('[data-act]').forEach(function (b) {
@@ -610,7 +667,8 @@
       var go = function () {
         b.disabled = true; b.innerHTML = '<span class="spin"></span>' + a.label;
         return call(a.fn).then(function (r) {
-          if (b.dataset.act === 'report' && r.url) { window.open(r.url, '_blank'); toast('Validation report rebuilt' + (r.pdfUrl ? ' and a PDF copy saved to Drive' : '') + '. Opening the tab…'); }
+          if ((b.dataset.act === 'report' || b.dataset.act === 'checkreport') && r.url) { window.open(r.url, '_blank'); toast(r.summary || 'Validation report rebuilt.'); }
+          else if (b.dataset.act === 'report' && r.url) { window.open(r.url, '_blank'); toast('Validation report rebuilt' + (r.pdfUrl ? ' and a PDF copy saved to Drive' : '') + '. Opening the tab…'); }
           else toast((r && (r.summary || r.message)) || 'Done.');
           if (a.tab) showTab(a.tab);
           return load();
@@ -625,7 +683,7 @@
   var drop = $('#drop'), input = $('#file');
   function setFiles(list) {
     pendingFiles = Array.prototype.slice.call(list).filter(function (f) { return /\.(xls|xlsx)$/i.test(f.name); });
-    $('#dropText').textContent = pendingFiles.length ? pendingFiles.length + ' file' + (pendingFiles.length === 1 ? '' : 's') + ' ready: ' + pendingFiles.map(function (f) { return f.name.replace(/ Financials.*$/, ''); }).slice(0, 2).join(', ') + (pendingFiles.length > 2 ? '…' : '') : 'Drop .xls files or click to choose';
+    $('#dropText').textContent = pendingFiles.length ? pendingFiles.length + ' file' + (pendingFiles.length === 1 ? '' : 's') + ' ready: ' + pendingFiles.map(function (f) { return f.name.replace(/ Financials.*$/, ''); }).slice(0, 2).join(', ') + (pendingFiles.length > 2 ? '…' : '') : 'Drop .xls files or browse';
     drop.classList.toggle('has', pendingFiles.length > 0);
     $('#stageBtn').classList.toggle('primary', pendingFiles.length > 0);
   }

@@ -145,7 +145,13 @@ function modelSnapshot() {
   var gm = m.layout.globalMedianRow;
   var h = m.header;
   function hv(k) { return h[k] ? m.values[h[k].row][h[k].col] : ''; }
+  // Title as Areta wrote it on the Comps tab ("Exchanges & Trading Infrastructure | Trading Comparables").
+  var rawTitle = '';
+  for (var tr = 0; tr < Math.min(4, disp.length) && !rawTitle; tr++) for (var tc = 0; tc < Math.min(4, disp[tr].length); tc++) if (String(disp[tr][tc]).indexOf('|') > 0 || /comparables/i.test(disp[tr][tc])) { rawTitle = String(disp[tr][tc]); break; }
+  var parts = rawTitle.split('|').map(function (x) { return x.trim(); });
+  var nCos = groups.reduce(function (a, g) { return a + g.companies.length; }, 0);
   return {
+    title: parts[0] || 'Trading comparables', titleSub: parts[1] || 'Trading Comparables', companyCount: nCos, groupCount: groups.length,
     groups: groups,
     allMedian: gm >= 0 ? { evRevenue: disp[gm][m.map.cols.evRevenue], evEbitda: disp[gm][m.map.cols.evEbitda], revenueGrowth: disp[gm][m.map.cols.revenueGrowth], change: disp[gm][m.map.cols.change] } : null,
     priceDate: dateOut(hv('priceDate')), priorDate: dateOut(hv('priorDate')), financialsSource: String(hv('financialsSource') || '')
