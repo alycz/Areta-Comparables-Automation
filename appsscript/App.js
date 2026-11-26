@@ -28,6 +28,7 @@ function onOpen() {
     .addSeparator()
     .addItem('Set up / reinstall schedule', 'menuSetup')
     .addItem('Open CIQ inbox folder', 'menuOpenInbox')
+    .addItem('Open web app', 'menuOpenWebApp')
     .addToUi();
 }
 
@@ -48,6 +49,14 @@ function menuOpenInbox() {
   var url = getFolders().inbox.getUrl();
   var html = HtmlService.createHtmlOutput('<p style="font-family:sans-serif">Drop CIQ exports here:<br><a target="_blank" href="' + url + '">Open CIQ Inbox folder</a></p>').setWidth(320).setHeight(90);
   SpreadsheetApp.getUi().showModalDialog(html, 'CIQ inbox');
+}
+
+function menuOpenWebApp() {
+  var url = webAppUrl_();
+  var body = url
+    ? '<a target="_blank" href="' + url + '">Open the Areta Comps web app</a><p style="color:#5F6368;font-size:12px">Signed in to several Google accounts? Open it in a private window signed in only with the account that owns this Sheet.</p>'
+    : 'The web app is not deployed for this copy. See README › Independent test, step 5.';
+  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutput('<div style="font-family:sans-serif">' + body + '</div>').setWidth(360).setHeight(130), 'Web app');
 }
 
 function toast_(msg) { try { ss_().toast(msg, APP_NAME, 8); } catch (e) { /* no UI */ } }
