@@ -187,7 +187,14 @@
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   function call(fn) {
     var args = Array.prototype.slice.call(arguments, 1);
-    return new Promise(function (res, rej) { google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn].apply(null, args); });
+    return new Promise(function (res, rej) {
+      google.script.run.withSuccessHandler(res).withFailureHandler(function (e) {
+        var m = String(e && e.message || e);
+        // Known Google bug: google.script.run fails when the browser is signed in to several Google accounts.
+        if (/PERMISSION_DENIED|reading from storage/i.test(m)) m = 'Google blocked this because the browser is signed in to more than one Google account. Use the Areta Comps menu in the Sheet, or open this in a private window signed in with one account.';
+        rej(new Error(m));
+      })[fn].apply(null, args);
+    });
   }
   function toast(t, isErr) { var el = $('#toast'); el.textContent = t; el.className = 'toast' + (isErr ? ' err' : ''); el.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(function () { el.style.display = 'none'; }, isErr ? 12000 : 7000); }
   function n(v, dp) { if (v === null || v === undefined || v === '') return '<span class="nm">–</span>'; if (typeof v !== 'number') return '<span class="nm">' + esc(v) + '</span>'; var s = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp }); return v < 0 ? '(' + s + ')' : s; }
