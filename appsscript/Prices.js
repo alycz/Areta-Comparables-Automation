@@ -203,7 +203,7 @@ function appendHistory(rows) {
     var at = idx[r[0] + '|' + String(r[1]).toUpperCase()];
     if (at) sh.getRange(at, 1, 1, out.length).setValues([out]); else appends.push(out);
   });
-  if (appends.length) sh.getRange(sh.getLastRow() + 1, 1, appends.length, HISTORY_HEADERS.length).setValues(appends);
+  if (appends.length) sh.getRange(sh.getLastRow() + 1, 1, appends.length, HISTORY_HEADERS.length).setValues(appends).setHorizontalAlignment('left');
   sh.getRange(2, 1, sh.getLastRow() - 1, 1).setNumberFormat('dd-mmm-yyyy');
   sh.getRange(2, 9, sh.getLastRow() - 1, 1).setNumberFormat('dd-mmm-yyyy hh:mm');
 }

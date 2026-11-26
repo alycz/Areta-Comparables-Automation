@@ -169,9 +169,12 @@ function stageImport(opts) {
     // Write the queue.
     var sh = sheetWithHeaders(SHEETS.REVIEW, REVIEW_HEADERS, { widths: [60, 170, 130, 130, 110, 110, 80, 140, 230, 260, 150, 120, 260, 10, 10, 10, 10] });
     if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, REVIEW_HEADERS.length).clearContent().clearFormat().clearDataValidations();
+    sh.setRowHeight(2, 21);
+    if (!queue.length) showQueueEmpty_('Nothing pending: the exports read in this batch match the model exactly.');
     if (queue.length) {
       sh.getRange(2, 1, queue.length, REVIEW_HEADERS.length).setValues(queue);
       sh.getRange(2, 1, queue.length, 1).insertCheckboxes();
+      sh.getRange(2, 1, queue.length, REVIEW_HEADERS.length).setHorizontalAlignment('left');
       var bg = queue.map(function (q) { var s = q[7]; return [s.indexOf('Blocked') === 0 ? '#FCE8E6' : s === 'Review' ? '#FFF4CE' : s === 'Ready' ? '#E6F4EA' : '#FFFFFF']; });
       sh.getRange(2, 8, queue.length, 1).setBackgrounds(bg);
       sh.getRange(2, 5, queue.length, 2).setNumberFormats(queue.map(function (q) {
@@ -224,9 +227,11 @@ function applyImport(opts) {
     if (!sh || sh.getLastRow() < 2) { finishRun(run, 'OK', 'Nothing to apply.'); return { applied: 0, message: 'Nothing pending. Import CIQ exports first.' }; }
     var model = loadModel();
     var q = sh.getRange(2, 1, sh.getLastRow() - 1, REVIEW_HEADERS.length).getValues();
+    if (!q.some(function (r) { return r[16]; })) { finishRun(run, 'OK', 'Nothing to apply.'); return { applied: 0, message: 'Nothing pending. Import CIQ exports first.' }; }
     var audit = [], applied = 0, companies = {}, fileIds = {}, periods = [];
     q.forEach(function (r) {
       var field = r[16], row = r[15] - 1;
+      if (!field) return;
       fileIds[r[14]] = true;
       if (field === 'financialPeriod' && r[5]) periods.push(String(r[5]));
       if (r[0] !== true) return;
@@ -259,10 +264,10 @@ function applyImport(opts) {
     Object.keys(fileIds).forEach(function (id) { try { DriveApp.getFileById(id).moveTo(dest); } catch (e) { /* already moved */ } });
     // Unmatched and duplicate files stay in the inbox (flagged in Exceptions) for the banker to fix.
 
-    sh.getRange(2, 1, q.length, REVIEW_HEADERS.length).clearContent().clearFormat().clearDataValidations();
     PropertiesService.getScriptProperties().deleteProperty('PENDING_BATCH');
-    SpreadsheetApp.flush();
     var summary = 'Applied ' + applied + ' changes across ' + Object.keys(companies).length + ' companies. Source files moved to Processed/' + dest.getName() + '.';
+    showQueueEmpty_('Nothing pending. Last import applied ' + Utilities.formatDate(new Date(), tz2, 'dd MMM yyyy, HH:mm') + ' by ' + run.user + ': ' + applied + ' changes across ' + Object.keys(companies).length + ' companies (each one is on the Audit Trail). Next time a company reports, drop its CIQ export in the inbox and run step 1.');
+    SpreadsheetApp.flush();
     finishRun(run, 'OK', summary);
     lock.releaseLock();
     if (!opts.skipChecks) runModelChecks({ trigger: opts.trigger, quiet: true });
@@ -277,10 +282,23 @@ function applyImport(opts) {
 
 /** Discard the pending Review Queue (files stay in the inbox). */
 function discardImport() {
-  var sh = ss_().getSheetByName(SHEETS.REVIEW);
-  if (sh && sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, REVIEW_HEADERS.length).clearContent().clearFormat().clearDataValidations();
   PropertiesService.getScriptProperties().deleteProperty('PENDING_BATCH');
+  showQueueEmpty_('Nothing pending. The last import was discarded on ' + Utilities.formatDate(new Date(), ss_().getSpreadsheetTimeZone(), 'dd MMM yyyy, HH:mm') + '; its files are still in the CIQ inbox.');
   return { ok: true };
+}
+
+/**
+ * Empty Review Queue: clear it and say why it is empty, so an empty tab never looks broken.
+ * text = null re-shows the last status message.
+ */
+function showQueueEmpty_(text) {
+  var props = PropertiesService.getScriptProperties();
+  var msg = text || props.getProperty('QUEUE_STATUS') || 'Nothing pending. When a company reports, drop its CIQ export in the inbox and run step 1 (Import CIQ exports). Proposed changes appear here for review.';
+  props.setProperty('QUEUE_STATUS', msg);
+  var sh = sheetWithHeaders(SHEETS.REVIEW, REVIEW_HEADERS, { widths: [60, 170, 130, 130, 110, 110, 80, 140, 230, 260, 150, 120, 260, 10, 10, 10, 10] });
+  if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, REVIEW_HEADERS.length).clearContent().clearFormat().clearDataValidations();
+  sh.getRange(2, 2).setValue(msg).setFontStyle('italic').setFontColor('#5F6368').setWrap(false).setHorizontalAlignment('left');
+  sh.setRowHeight(2, 36);
 }
 
 /** Pending queue for the web app. */
@@ -288,8 +306,9 @@ function readReviewQueue() {
   var sh = ss_().getSheetByName(SHEETS.REVIEW);
   if (!sh || sh.getLastRow() < 2) return [];
   return sh.getRange(2, 1, sh.getLastRow() - 1, REVIEW_HEADERS.length).getValues().map(function (r, i) {
+    if (!r[16]) return null;
     return { idx: i, apply: r[0] === true, company: r[1], ticker: r[2], field: r[3], current: r[4], proposed: r[5], change: r[6], status: r[7], flags: r[8], file: r[9], tab: r[10], cell: r[11], label: r[12] };
-  });
+  }).filter(Boolean);
 }
 
 /** Tick / untick queue rows from the web app. */

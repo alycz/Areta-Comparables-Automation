@@ -63,17 +63,17 @@ function runModelChecks(opts) {
 
     // Median formulas present.
     model.layout.groups.forEach(function (g) {
-      if (g.medianRow < 0) { add(SEVERITY.REVIEW, null, '', 'NO_MEDIAN_ROW', 'Peer group "' + g.name + '" has no Median row.', ''); return; }
+      if (g.medianRow < 0) { add(SEVERITY.REVIEW, { name: g.name + ' (peer group)', ticker: '' }, '', 'NO_MEDIAN_ROW', 'Peer group "' + g.name + '" has no Median row.', ''); return; }
       MEDIAN_FIELDS.forEach(function (k) {
         var col = model.map.cols[k]; if (col === undefined) return;
-        if (!formulas[g.medianRow][col]) add(SEVERITY.ERROR, null, k, 'MEDIAN_HARDCODED', g.name + ' median of ' + MODEL_HEADERS[k] + ' is not a formula.', a1(g.medianRow, col));
+        if (!formulas[g.medianRow][col]) add(SEVERITY.ERROR, { name: g.name + ' (peer group)', ticker: '' }, k, 'MEDIAN_HARDCODED', g.name + ' median of ' + MODEL_HEADERS[k] + ' is not a formula.', a1(g.medianRow, col));
       });
       // Mixed periods within a group.
       var pcol = model.map.cols.financialPeriod;
       if (pcol !== undefined) {
         var ps = g.rows.map(function (r) { return String(model.values[r][pcol] || '').replace(/\s*\(.*\)$/, ''); }).filter(String);
         var uniq = ps.filter(function (p, i) { return ps.indexOf(p) === i; });
-        if (uniq.length > 1) add(SEVERITY.REVIEW, null, 'financialPeriod', 'GROUP_MIXED_PERIODS', g.name + ': companies are on different LTM periods (' + uniq.join(', ') + '). Median compares unlike periods.', '');
+        if (uniq.length > 1) add(SEVERITY.REVIEW, { name: g.name + ' (peer group)', ticker: '' }, 'financialPeriod', 'GROUP_MIXED_PERIODS', g.name + ': companies are on different LTM periods (' + uniq.join(', ') + '). Median compares unlike periods.', '');
       }
     });
 

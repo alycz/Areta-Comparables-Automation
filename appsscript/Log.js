@@ -25,6 +25,7 @@ function sheetWithHeaders(name, headers, opts) {
 }
 
 function currentUser() {
+  if (typeof WEB_USER_ !== 'undefined' && WEB_USER_) return WEB_USER_;
   try { return Session.getActiveUser().getEmail() || Session.getEffectiveUser().getEmail() || 'scheduled'; } catch (e) { return 'scheduled'; }
 }
 
@@ -44,6 +45,7 @@ function finishRun(run, status, summary) {
   sh.getRange(2, 1, 1, RUN_HEADERS.length).setValues([[run.id, run.started, new Date(), run.user, run.type, run.trigger, status, summary]])
     .setBackground(null).setFontColor('#000000').setFontWeight('normal');
   sh.getRange(2, 2, 1, 2).setNumberFormat('dd-mmm-yyyy hh:mm');
+  sh.getRange(2, 1, 1, RUN_HEADERS.length).setHorizontalAlignment('left');
 }
 
 /** Append audit rows: [{action, company, ticker, field, oldV, newV, source:{file,sheet,cell,label,raw}, note}] */
@@ -55,7 +57,9 @@ function writeAudit(run, rows) {
     var s = a.source || {};
     return [now, run.id, run.user, a.action, a.company, a.ticker, a.field, display(a.oldV), display(a.newV), s.file || '', s.sheet || '', s.cell || '', s.label || '', display(s.raw), a.note || s.note || ''];
   });
-  sh.getRange(sh.getLastRow() + 1, 1, data.length, AUDIT_HEADERS.length).setValues(data);
+  var at = sh.getLastRow() + 1;
+  sh.getRange(at, 1, data.length, AUDIT_HEADERS.length).setValues(data).setHorizontalAlignment('left');
+  sh.getRange(at, 1, data.length, 1).setNumberFormat('dd-mmm-yyyy hh:mm');
 }
 
 function display(v) {
@@ -85,7 +89,7 @@ function syncExceptions(run, categories, items, scopeTickers) {
     var key = [it.category, it.ticker || '', it.field || '', it.code].join('|');
     var p = prev[key];
     var status = p && p[11] === 'Reviewed' ? 'Reviewed' : 'Open';
-    return [key, it.severity, it.category, it.company || '', it.ticker || '', FIELD_LABELS[it.field] || it.field || '', it.message,
+    return [key, it.severity, it.category, it.company || 'Whole model', it.ticker || '—', FIELD_LABELS[it.field] || it.field || '', it.message,
       it.source || '', p ? p[8] : now, now, run.id, status, p ? p[12] : '', p ? p[13] : ''];
   });
   var all = fresh.concat(keep);
@@ -108,6 +112,7 @@ function syncExceptions(run, categories, items, scopeTickers) {
     var statusRule = SpreadsheetApp.newDataValidation().requireValueInList(['Open', 'Reviewed'], true).build();
     sh.getRange(2, 12, all.length, 1).setDataValidation(statusRule);
     sh.getRange(2, 12, all.length, 3).setBackground('#FFF2CC');
+    sh.getRange(2, 1, all.length, EXC_HEADERS.length).setHorizontalAlignment('left').setVerticalAlignment('middle');
   }
   sh.hideColumns(1);
   return all.length;

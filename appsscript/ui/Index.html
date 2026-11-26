@@ -101,16 +101,41 @@
 
   @media (max-width: 1000px) { .kpis { grid-template-columns: 1fr 1fr; } .steps { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 640px) { .top, .hero, main { padding-left: 16px; padding-right: 16px; } .steps, .kpis { grid-template-columns: 1fr; } .hero h1 { font-size: 30px; } }
+  .login { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; padding: 16px; background: linear-gradient(115deg, #fff 0%, #fff 40%, var(--frost) 100%); }
+  .login.on { display: grid; }
+  .login form { width: 100%; max-width: 380px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 32px 28px; box-shadow: 0 20px 60px rgba(0,43,153,.08); display: flex; flex-direction: column; gap: 14px; }
+  .login .logo { height: 30px; color: var(--ink); }
+  .login h2 { margin: 6px 0 0; font-size: 26px; font-weight: 400; }
+  .login p { margin: 0; color: var(--muted); font-size: 13px; }
+  .login label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; display: flex; flex-direction: column; gap: 6px; }
+  .login input { font: inherit; font-size: 15px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; text-transform: none; letter-spacing: 0; color: var(--ink); }
+  .login input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--frost); }
+  .login button { padding: 11px 16px; font-size: 15px; }
+  .login .err { color: var(--err); font-size: 13px; min-height: 18px; }
+  .signout { display: none; }
+  body.web.authed .signout { display: inline-block; }
 </style>
 </head>
 <body class="<?= mode ?>">
+  <div class="login" id="login">
+    <form id="loginForm" autocomplete="on">
+      <?!= include('ui/Logo') ?>
+      <h2 class="serif">Comps engine</h2>
+      <p><?= hasPassword ? 'Sign in to run and review the trading comps model.' : 'No password set yet. The model owner sets one in the Sheet: Areta Comps › Tools › Set web app password.' ?></p>
+      <label>Your name or email<input id="lgName" name="username" autocomplete="username" placeholder="For the audit trail"></label>
+      <label>Password<input id="lgPw" name="password" type="password" autocomplete="current-password" required></label>
+      <div class="err" id="lgErr"></div>
+      <button class="primary" type="submit" id="lgBtn">Sign in</button>
+    </form>
+  </div>
   <div class="top">
     <div class="lockup"><?!= include('ui/Logo') ?><span class="sub">COMPS</span></div>
     <div class="spacer"></div>
     <span class="user" id="user"></span>
     <button class="ghost" onclick="load()">Refresh view</button>
-    <button data-act="runall">▶ Run all steps</button>
+    <button data-act="runall">▶&ensp;Run all steps</button>
     <button class="primary" id="openModel">Open model ↗</button>
+    <button class="ghost signout" id="signout">Sign out</button>
   </div>
 
   <section class="hero">
@@ -186,24 +211,48 @@
   var STATE = null, SEV = 'open';
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-  function call(fn) {
-    var args = Array.prototype.slice.call(arguments, 1);
+  // Session token from the web login (sessionStorage can be blocked: fall back to memory).
+  var TOKEN = '';
+  try { TOKEN = sessionStorage.getItem('aretaToken') || ''; } catch (e) { TOKEN = ''; }
+  function saveToken(t) { TOKEN = t || ''; try { if (t) sessionStorage.setItem('aretaToken', t); else sessionStorage.removeItem('aretaToken'); } catch (e) { /* memory only */ } }
+  function rawCall(fn, args) {
     return new Promise(function (res, rej) {
-      google.script.run.withSuccessHandler(res).withFailureHandler(function (e) {
-        var m = String(e && e.message || e);
-        // Known Google bug: google.script.run fails when the browser is signed in to several Google accounts.
-        if (/PERMISSION_DENIED|reading from storage/i.test(m)) m = 'Google blocked this because the browser is signed in to more than one Google account. Use the Areta Comps menu in the Sheet, or open this in a private window signed in with one account.';
-        rej(new Error(m));
-      })[fn].apply(null, args);
+      google.script.run.withSuccessHandler(res).withFailureHandler(function (e) { rej(new Error(String(e && e.message || e))); })[fn].apply(null, args);
     });
   }
+  function call(fn) {
+    var args = [MODE === 'web' ? TOKEN : ''].concat(Array.prototype.slice.call(arguments, 1));
+    return rawCall(fn, args).catch(function (e) {
+      if (/SESSION_EXPIRED/.test(e.message)) { saveToken(''); showLogin('Please sign in.'); throw new Error('Signed out. Sign in to continue.'); }
+      throw e;
+    });
+  }
+  function showLogin(msg) {
+    document.body.classList.remove('authed');
+    $('#login').classList.add('on'); $('#lgErr').textContent = msg && msg !== 'Please sign in.' ? msg : '';
+    try { $('#lgName').value = localStorage.getItem('aretaName') || ''; } catch (e) { /* none */ }
+    setTimeout(function () { ($('#lgName').value ? $('#lgPw') : $('#lgName')).focus(); }, 50);
+  }
+  $('#loginForm').onsubmit = function (ev) {
+    ev.preventDefault();
+    var b = $('#lgBtn'); b.disabled = true; b.innerHTML = '<span class="spin"></span>Signing in…'; $('#lgErr').textContent = '';
+    var name = $('#lgName').value.trim();
+    rawCall('api_login', [name, $('#lgPw').value]).then(function (r) {
+      saveToken(r.token);
+      try { localStorage.setItem('aretaName', name); } catch (e) { /* none */ }
+      $('#lgPw').value = ''; $('#login').classList.remove('on'); document.body.classList.add('authed');
+      return load();
+    }).catch(function (e) { $('#lgErr').textContent = e.message.replace(/^Exception: /, ''); })
+      .then(function () { b.disabled = false; b.textContent = 'Sign in'; });
+  };
   function toast(t, isErr) { var el = $('#toast'); el.textContent = t; el.className = 'toast' + (isErr ? ' err' : ''); el.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(function () { el.style.display = 'none'; }, isErr ? 12000 : 7000); }
   function n(v, dp) { if (v === null || v === undefined || v === '') return '<span class="nm">–</span>'; if (typeof v !== 'number') return '<span class="nm">' + esc(v) + '</span>'; var s = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp }); return v < 0 ? '(' + s + ')' : s; }
   function pc(v) { if (typeof v !== 'number') return '<span class="nm">' + esc(v || '–') + '</span>'; var s = (Math.abs(v) * 100).toFixed(1) + '%'; return v < 0 ? '(' + s + ')' : s; }
   function x(v) { if (typeof v !== 'number') return '<span class="nm">' + esc(v || '–') + '</span>'; return v.toFixed(1) + 'x'; }
 
   function load() {
-    return call('api_dashboard').then(function (j) { STATE = JSON.parse(j); render(); }).catch(function (e) { toast(e.message || e, true); });
+    return call('api_dashboard').then(function (j) { STATE = JSON.parse(j); if (MODE === 'web') document.body.classList.add('authed'); render(); })
+      .catch(function (e) { if (!/^Signed out/.test(e.message)) toast(e.message || e, true); });
   }
 
   function render() {
@@ -222,7 +271,7 @@
     $('#kpis').innerHTML = html;
     if (MODE === 'sidebar') { $('#kpisSide').style.display = 'grid'; $('#kpisSide').innerHTML = html; }
     renderComps(); renderExc(); renderQueue(); renderRuns();
-    $('#footer').innerHTML = 'Signed in as ' + esc(s.user) + ' · Data lives in <a target="_blank" href="' + s.sheetUrl + '">' + esc(s.sheetName) + '</a> · Every change is logged on the Audit Trail tab.';
+    $('#footer').innerHTML = 'Signed in as ' + esc(s.user).replace(/ \(web\)$/, '') + ' · Data lives in <a target="_blank" href="' + s.sheetUrl + '">' + esc(s.sheetName) + '</a> · Every change is logged on the Audit Trail tab.';
   }
 
   function renderComps() {
@@ -262,7 +311,7 @@
     var pending = q.filter(function (r) { return r.status === 'Ready' || r.status === 'Review'; });
     $('#cQueue').textContent = pending.length;
     $('#applyBtn').disabled = !pending.length;
-    if (!q.length) { $('#queue').innerHTML = '<tr><td class="empty">No pending import. Upload CIQ exports in step 2.</td></tr>'; $('#queueSummary').textContent = ''; return; }
+    if (!q.length) { $('#queue').innerHTML = '<tr><td class="empty">' + esc(STATE.queueStatus || 'Nothing pending. Upload CIQ exports in step 1.') + '</td></tr>'; $('#queueSummary').textContent = ''; return; }
     var c = { Ready: 0, Review: 0, Blocked: 0, No: 0 };
     q.forEach(function (r) { c[r.status.split(/[: ]/)[0]]++; });
     $('#queueSummary').textContent = c.Ready + ' ready · ' + c.Review + ' need review · ' + c.Blocked + ' blocked (current value kept) · ' + c.No + ' unchanged';
@@ -340,7 +389,8 @@
     call('api_review', keys, $('#comment').value).then(function (r) { toast(r.updated + ' item(s) signed off.'); $('#comment').value = ''; return load(); }).catch(function (e) { toast(e.message || e, true); });
   };
   if (MODE === 'sidebar') { document.querySelectorAll('.top, .hero').forEach(function (el) { el.remove(); }); }
-  load();
+  if ($('#signout')) $('#signout').onclick = function () { saveToken(''); STATE = null; showLogin(); };
+  if (MODE === 'web' && !TOKEN) showLogin(); else load();
 </script>
 </body>
 </html>
