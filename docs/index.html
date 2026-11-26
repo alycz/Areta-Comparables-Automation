@@ -50,10 +50,11 @@
   /* Top bar */
   .top { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.82); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px); border-bottom: 1px solid var(--line); }
   .top .wrap { display: flex; align-items: center; gap: 10px; height: 68px; }
-  .lockup { display: flex; align-items: center; gap: 16px; color: var(--ink); }
+  .lockup { display: flex; align-items: center; gap: 18px; color: var(--ink); }
   .logo { height: 26px; width: auto; color: var(--ink); display: block; }
-  .lockup .div { width: 1px; height: 22px; background: var(--line); }
-  .lockup .sub { font-weight: 600; letter-spacing: .16em; font-size: 11px; color: var(--midnight); text-transform: uppercase; }
+  .lockup .div { width: 1px; height: 26px; background: #D5DBE8; }
+  .lockup .sub { font-family: 'Benne', Georgia, serif; font-weight: 400; font-size: 23px; line-height: 1; letter-spacing: -.005em; color: var(--ink); padding-top: 5px; }
+  .lockup .sub em { font-style: normal; color: var(--blue); }
   .spacer { flex: 1; }
   .prof { position: relative; }
   .avbtn { width: 38px; height: 38px; padding: 0; border-radius: 50%; display: grid; place-items: center; background: var(--frost); border-color: transparent; color: var(--midnight); font-weight: 700; font-size: 12.5px; letter-spacing: .02em; }
@@ -234,7 +235,8 @@
   @keyframes cardIn { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
   .login .logo { height: 34px; align-self: center; }
   .login .kicker { text-align: center; margin-top: 26px; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--blue); }
-  .login h2 { margin: 8px 0 0; font-size: 34px; text-align: center; line-height: 1.1; color: var(--ink); }
+  .login h2 em { font-style: normal; color: var(--blue); }
+  .login h2 { margin: 8px 0 0; font-size: 34px; white-space: nowrap; text-align: center; line-height: 1.1; color: var(--ink); }
   .login p { margin: 10px 0 26px; color: var(--muted); font-size: 13.5px; text-align: center; }
   .login label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
   .login input { font: inherit; font-size: 15px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md); text-transform: none; letter-spacing: 0; color: var(--ink); background: #fff; transition: border-color .2s var(--ease-out), box-shadow .2s var(--ease-out); }
@@ -298,8 +300,8 @@
 </svg>
 
       <div class="kicker">Trading comparables</div>
-      <h2 class="serif">Comparables Automation</h2>
-      <p>Sign in to run and review the trading comparables model.</p>
+      <h2 class="serif">Comparables <em>Automation</em></h2>
+      <p>Sign in to run and review the comparables model.</p>
       <label>Your name<input id="lgName" name="username" autocomplete="username" placeholder="Shown on the audit trail"></label>
       <label>Password<input id="lgPw" name="password" type="password" autocomplete="current-password" required></label>
       <div class="err" id="lgErr"></div>
@@ -331,7 +333,7 @@
 </clipPath>
 </defs>
 </svg>
-<span class="div"></span><span class="sub">Comparables Automation</span></div>
+<span class="div"></span><span class="sub">Comparables <em>Automation</em></span></div>
       <div class="spacer"></div>
       <button class="primary" id="openModel">Open model ↗</button>
       <div class="prof" id="prof">
@@ -384,7 +386,7 @@
 </clipPath>
 </defs>
 </svg>
-<div style="font-weight:600;letter-spacing:.16em;font-size:10.5px;margin-top:6px;color:var(--midnight)">COMPARABLES AUTOMATION</div></div>
+<div style="font-family:Benne,Georgia,serif;font-size:19px;margin-top:6px;color:var(--ink)">Comparables <span style="color:var(--blue)">Automation</span></div></div>
       <div class="kpis" id="kpisSide" style="display:none"></div>
 
       <div class="section-h rise" style="--i:8"><h2 class="serif">Workflow</h2><p>Each step can run on its own. Step 05 runs the whole cycle in one go.</p></div>
