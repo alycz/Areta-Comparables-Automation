@@ -141,3 +141,12 @@ test('expected latest quarter honours the reporting lag', () => {
   assert.strictEqual(core.expectedLatestQuarter('2026-11-10', 45), '2026-06-30');
   assert.strictEqual(core.expectedLatestQuarter('2026-02-20', 45), '2025-12-31');
 });
+
+test('crypto fair-value swings in CIQ EBITDA are flagged (CoinShares, Bullish)', () => {
+  for (const t of ['CSHR', 'BLSH']) {
+    const i = by(t).issues.find(x => x.code === 'EBITDA_NOT_REPRESENTATIVE');
+    assert.ok(i, t);
+    assert.match(i.message, /fair-value/);
+  }
+  assert.ok(!codes(by('COIN')).includes('EBITDA_NOT_REPRESENTATIVE'));
+});

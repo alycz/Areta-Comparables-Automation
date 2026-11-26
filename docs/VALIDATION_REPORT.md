@@ -11,7 +11,7 @@ Generated 2026-11-25 by `tools/report.js`, which runs the same `Core.js` as the 
 | Fields extracted | 200 |
 | Market cap and EV rebuilt and reconciled to CIQ (±0.5%) | 18 of 18 with a CIQ EV bridge |
 | ERROR items (value blocked) | 0 |
-| REVIEW items (banker judgement) | 11 |
+| REVIEW items (banker judgement) | 14 |
 | INFO items | 28 |
 | Peer LTM period | Jun-30-2026 |
 
@@ -22,7 +22,10 @@ Generated 2026-11-25 by `tools/report.js`, which runs the same `Core.js` as the 
 | BlackRock, Inc. | PRESS_RELEASE | LTM to Sep-30-2026 is built from a press release (not yet in a 10-Q/10-K). Figures may change on filing, and EBITDA may be less complete. |
 | BlackRock, Inc. | PERIOD_MISMATCH | LTM ends Sep-30-2026 while most peers end Jun-30-2026. Multiples are not on a like-for-like period. |
 | BlackRock, Inc. | IMPLIED_SHARES | CIQ also reports 162.2mm implied shares (incl. exchangeable units) vs 154.6mm listed shares (4.9%). Model uses listed shares per CIQ convention; banker to confirm. |
+| Bullish | EBITDA_NOT_REPRESENTATIVE | LTM EBITDA of $-794.5mm is -264% of revenue ($300.7mm). CIQ's EBITDA absorbs "Other operating expense/(income)" of $872mm, typically fair-value moves on digital assets held, which are not operating performance. Banker to decide whether to use an adjusted EBITDA or show NM. |
 | Coincheck Group N.V. | FX_TRANSLATION | Company reports in JPY. CIQ translated LTM figures to US$ at today's spot rate (setting: "Today's Spot Rate"), not period-average rates. Confirm the FX convention. |
+| CoinShares PLC | EBITDA_NOT_REPRESENTATIVE | LTM EBITDA of $-2,408.6mm is -1756% of revenue ($137.2mm). CIQ's EBITDA absorbs "Other operating expense/(income)" of $2,462mm, typically fair-value moves on digital assets held, which are not operating performance. Banker to decide whether to use an adjusted EBITDA or show NM. |
+| Gemini Space Station, Inc. | EBITDA_NOT_REPRESENTATIVE | LTM EBITDA of $-364.8mm is -176% of revenue ($206.7mm). Banker to decide whether to use an adjusted EBITDA or show NM. |
 | PENN Entertainment, Inc. | NEGATIVE_NCI | NCI is negative ($-7.5mm), which reduces EV. Confirm the treatment. |
 | Robinhood Markets, Inc. | NO_EV_BRIDGE | CIQ shows no enterprise value bridge for this company (financial-company template). Net debt and NCI taken from Capital Structure Summary, latest quarter. Confirm debt is corporate debt, not operating/client funding. |
 | Robinhood Markets, Inc. | BROKER_FUNDING_IN_DEBT | Short-term borrowings are 90% of total debt ($20,536mm of $22,925mm). Likely broker / securities-lending funding. The Read Me excludes balance-sheet-intensive brokers for this reason; banker to decide treatment. |

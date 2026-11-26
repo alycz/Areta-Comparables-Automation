@@ -391,6 +391,8 @@ function parseCiqWorkbook(sheets, fileName) {
       rec.meta.reportedCurrency = isCur >= 0 ? String(is[isCur][isCol]).trim() : '';
       var rAr = findRow(is, 'As Reported Total Revenue');
       if (rAr >= 0) rec.ciq.asReportedRevenue = ciqNumber(is[rAr][isCol]);
+      var rOo = findRow(is, 'Other Operating Expense/(Income)', { exact: true });
+      if (rOo >= 0) rec.ciq.otherOperatingExpense = ciqNumber(is[rOo][isCol]);
       var rFd = findRow(is, 'Filing Date', { exact: true });
       if (rFd >= 0) rec.meta.filingDate = anyToIsoDate(is[rFd][isCol]);
     }
@@ -611,6 +613,14 @@ function validateFinancials(rec, ctx) {
 
   // Earnings quality.
   if (f.ltmEbitda != null && f.ltmEbitda <= 0) issue(SEVERITY.INFO, 'NEGATIVE_EBITDA', 'ltmEbitda', 'LTM EBITDA is ' + (f.ltmEbitda < 0 ? 'negative' : 'zero') + ' ($' + fmt(f.ltmEbitda, 1) + 'mm): EV / EBITDA shows NM.');
+  if (f.ltmEbitda != null && f.ltmRevenue > 0 && Math.abs(f.ltmEbitda / f.ltmRevenue) > s.ebitdaMarginOutlier) {
+    var oo = ciq.otherOperatingExpense;
+    var hint = (oo != null && Math.abs(oo) > 0.5 * f.ltmRevenue)
+      ? ' CIQ\'s EBITDA absorbs "Other operating expense/(income)" of $' + fmt(oo) + 'mm, typically fair-value moves on digital assets held, which are not operating performance.'
+      : '';
+    issue(SEVERITY.REVIEW, 'EBITDA_NOT_REPRESENTATIVE', 'ltmEbitda',
+      'LTM EBITDA of $' + fmt(f.ltmEbitda, 1) + 'mm is ' + pct(f.ltmEbitda / f.ltmRevenue, 0) + ' of revenue ($' + fmt(f.ltmRevenue, 1) + 'mm).' + hint + ' Banker to decide whether to use an adjusted EBITDA or show NM.');
+  }
   if (f.ltmRevenue != null && f.ltmRevenue <= 0) issue(SEVERITY.REVIEW, 'NON_POSITIVE_REVENUE', 'ltmRevenue', 'LTM revenue is not positive: EV / Revenue shows NM.');
   if (f.revenueGrowth != null && Math.abs(f.revenueGrowth) > s.growthOutlier) {
     issue(SEVERITY.REVIEW, 'GROWTH_OUTLIER', 'revenueGrowth', 'Revenue growth of ' + pct(f.revenueGrowth) + ' is outside ±' + pct(s.growthOutlier, 0) + '. Check for M&A, IPO or a change of basis.');
@@ -676,6 +686,7 @@ var DEFAULT_SETTINGS = {
   reconTolerance: 0.005,        // 0.5% for market cap / EV reconciliation to CIQ
   impliedSharesTolerance: 0.02, // 2%
   growthOutlier: 1.0,           // ±100%
+  ebitdaMarginOutlier: 1.0,     // |EBITDA| > 100% of revenue
   revenueBasisTolerance: 0.02,  // 2%
   changeShares: 0.10,           // 10% move in shares vs model
   changeFinancials: 0.30,       // 30% move in LTM revenue / EBITDA vs model

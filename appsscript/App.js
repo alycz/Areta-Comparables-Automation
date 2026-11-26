@@ -72,6 +72,8 @@ function setup() {
     ['FOLDER_ROOT', 'FOLDER_INBOX', 'FOLDER_PROCESSED', 'PENDING_BATCH', 'SCHEDULE_TEXT'].forEach(function (k) { props.deleteProperty(k); });
   }
   props.setProperty('SPREADSHEET_ID', ss.getId());
+  var tzWanted = String(getSettings().timeZone || 'Europe/London');
+  if (ss.getSpreadsheetTimeZone() !== tzWanted) ss.setSpreadsheetTimeZone(tzWanted);
   var model = loadModel();
   var n = installFormulas(model);
   ensureConfigSheet(model.layout.companies);

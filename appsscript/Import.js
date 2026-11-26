@@ -174,7 +174,10 @@ function stageImport(opts) {
       sh.getRange(2, 1, queue.length, 1).insertCheckboxes();
       var bg = queue.map(function (q) { var s = q[7]; return [s.indexOf('Blocked') === 0 ? '#FCE8E6' : s === 'Review' ? '#FFF4CE' : s === 'Ready' ? '#E6F4EA' : '#FFFFFF']; });
       sh.getRange(2, 8, queue.length, 1).setBackgrounds(bg);
-      sh.getRange(2, 5, queue.length, 2).setNumberFormat('#,##0.0;(#,##0.0)');
+      sh.getRange(2, 5, queue.length, 2).setNumberFormats(queue.map(function (q) {
+        var f = q[16] === 'revenueGrowth' ? '0.0%;(0.0%)' : '#,##0.0;(#,##0.0)';
+        return [f, f];
+      }));
     }
     sh.hideColumns(14, 4);
     syncExceptions(run, ['Import', 'Financials'], issues, Object.keys(byRow).map(function (r) { return byRow[r].company.ticker; }));

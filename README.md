@@ -13,7 +13,7 @@ The engine is Google Apps Script bound to the comps Sheet. Bankers use it from a
 | Pull financials out of Capital IQ | Drop the CIQ "Financials" exports in. The engine finds the company by ticker and extracts shares, net debt, NCI, preferred, LTM revenue, LTM EBITDA and growth by row label. It proposes changes with their source cells, and writes only the blue input cells once a banker approves. |
 | Check the calculations | Market cap and EV are rebuilt and reconciled to CIQ on every import. Every formula is recomputed independently. The engine flags hardcodes and #errors, and logs every change with its source. |
 
-On the supplied data, all 20 exports parse and 200 fields are extracted. Market cap and EV reconcile to CIQ within 0.5% for all 18 companies that have a CIQ EV bridge. There are 0 blocked values, 11 items for banker judgement and 28 for information. See [docs/VALIDATION_REPORT.md](docs/VALIDATION_REPORT.md).
+On the supplied data, all 20 exports parse and 200 fields are extracted. Market cap and EV reconcile to CIQ within 0.5% for all 18 companies that have a CIQ EV bridge. There are 0 blocked values, 14 items for banker judgement and 28 for information. See [docs/VALIDATION_REPORT.md](docs/VALIDATION_REPORT.md).
 
 ---
 
@@ -126,7 +126,7 @@ Where CIQ shows no EBITDA (financial template), the engine uses **implied EBITDA
 
 ```bash
 npm i -g @google/clasp && clasp login
-npm test                     # 16 tests against the real CIQ exports (fixtures needed, see below)
+npm test                     # 17 tests against the real CIQ exports (fixtures needed, see below)
 clasp push -f                # push appsscript/ to the bound script (.clasp.json)
 npm run deploy               # push + update the web app deployment
 node tools/report.js         # regenerate docs/VALIDATION_REPORT.md

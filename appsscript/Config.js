@@ -32,6 +32,8 @@ var SETTING_DEFS = {
   reconTolerance: [0.005, 'Market cap / EV must rebuild to CIQ within this tolerance'],
   impliedSharesTolerance: [0.02, 'Flag when CIQ implied shares differ from listed shares by more than this'],
   growthOutlier: [1.0, 'Flag revenue growth beyond ± this'],
+  ebitdaMarginOutlier: [1.0, 'Flag LTM EBITDA whose size exceeds this multiple of LTM revenue (e.g. crypto fair-value swings)'],
+  timeZone: ['Europe/London', 'Time zone for the schedule and dates (Areta bankers: Europe/London)'],
   revenueBasisTolerance: [0.02, 'Flag when CIQ revenue differs from as-reported revenue by more than this'],
   changeShares: [0.10, 'Flag a change in shares vs the current model larger than this'],
   changeFinancials: [0.30, 'Flag a change in LTM revenue / EBITDA vs the current model larger than this'],
