@@ -176,11 +176,51 @@ function installTriggers() {
  */
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.ping) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: true, app: APP_NAME, passwordSet: !!PropertiesService.getScriptProperties().getProperty('WEB_PW_HASH') })).setMimeType(ContentService.MimeType.JSON);
+  }
   var t = HtmlService.createTemplateFromFile('ui/Index');
   t.mode = 'web';
   t.webAppUrl = webAppUrl_();
   t.hasPassword = !!PropertiesService.getScriptProperties().getProperty('WEB_PW_HASH');
   return t.evaluate().setTitle('Areta Comps').addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/**
+ * JSON API for the standalone portal (docs/portal, hosted outside Google).
+ * The portal calls this with fetch() and no cookies, so Google's multi-account
+ * routing ("Sorry, unable to open the file", "Page not found") never applies.
+ * Body: {"fn": "api_dashboard", "args": [token, ...]}. Same password/token gate.
+ */
+var API_ = {
+  api_login: function (a) { return api_login(a[0], a[1]); },
+  api_dashboard: function (a) { return api_dashboard(a[0]); },
+  api_refreshPrices: function (a) { return api_refreshPrices(a[0]); },
+  api_upload: function (a) { return api_upload(a[0], a[1]); },
+  api_stageImport: function (a) { return api_stageImport(a[0]); },
+  api_apply: function (a) { return api_apply(a[0]); },
+  api_discard: function (a) { return api_discard(a[0]); },
+  api_setQueue: function (a) { return api_setQueue(a[0], a[1], a[2]); },
+  api_checks: function (a) { return api_checks(a[0]); },
+  api_repair: function (a) { return api_repair(a[0]); },
+  api_review: function (a) { return api_review(a[0], a[1], a[2]); },
+  api_report: function (a) { return api_report(a[0]); },
+  api_runAll: function (a) { return api_runAll(a[0]); }
+};
+
+function doPost(e) {
+  var out;
+  try {
+    var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    var fn = API_[body.fn];
+    if (!fn) throw new Error('Unknown call.');
+    var args = body.args || [];
+    if (body.fn !== 'api_login' && !args[0]) throw new Error('SESSION_EXPIRED');
+    out = { ok: true, result: fn(args) };
+  } catch (err) {
+    out = { ok: false, error: String(err && err.message || err) };
+  }
+  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
 
 function include(name) { return HtmlService.createHtmlOutputFromFile(name).getContent(); }

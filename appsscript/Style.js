@@ -26,20 +26,28 @@ function styleComps_(model) {
   hdr.setWrap(false).setVerticalAlignment('middle');
   sh.setRowHeight(model.map.headerRow + 1, 34);
 
-  // Title and subtitle sit inside the frozen columns, so the freeze line never cuts through text.
-  var cName = model.map.cols.company + 1, cTick = model.map.cols.ticker + 1;
-  var frozenCols = sh.getFrozenColumns();
-  if (frozenCols >= cTick) {
-    [2, 3].forEach(function (r) {
-      var rng = sh.getRange(r, cName, 1, cTick - cName + 1);
-      if (!rng.isPartOfMerge()) { try { rng.merge(); } catch (e) { /* layout differs: leave it */ } }
-      rng.setWrap(true).setVerticalAlignment('top');
-    });
-    sh.getRange(2, cName).setFontSize(14);
-    sh.setRowHeight(2, 46);
-    sh.getRange(3, cName).setFontSize(9).setFontColor('#5F6368');
-    sh.setRowHeight(3, 70);
-  }
+  // No vertical freeze line (it cut through the title block); freeze only down to the header row,
+  // so the line sits directly under the dark header bar and the title area stays clean.
+  sh.setFrozenColumns(0);
+  sh.setFrozenRows(model.map.headerRow + 1);
+
+  // Title block: one line each, spanning the table instead of squeezing into Company/Ticker.
+  var cName = model.map.cols.company + 1;
+  var lastCol = sh.getLastColumn();
+  var spanTo = Math.min(lastCol, (model.map.cols.ev !== undefined ? model.map.cols.ev + 1 : cName + 7));
+  [2, 3].forEach(function (r) {
+    sh.getRange(r, 1, 1, lastCol).breakApart();
+    var rng = sh.getRange(r, cName, 1, spanTo - cName + 1);
+    try { rng.merge(); } catch (e) { /* layout differs: leave it */ }
+    rng.setWrap(false).setVerticalAlignment('middle').setHorizontalAlignment('left');
+  });
+  sh.getRange(2, cName).setFontSize(16).setFontWeight('bold').setFontColor('#0B0F1A');
+  sh.getRange(3, cName).setFontSize(9).setFontColor('#5F6368');
+  sh.setRowHeight(1, 12);
+  sh.setRowHeight(2, 34);
+  sh.setRowHeight(3, 20);
+  sh.setRowHeight(4, 26);
+  if (model.map.headerRow + 1 > 5) sh.setRowHeight(5, 10);
 
   // Header value cells: let "Financials source" fill its box.
   var fs = model.header.financialsSource;
@@ -49,8 +57,18 @@ function styleComps_(model) {
     if (!box.isPartOfMerge()) { try { box.merge(); } catch (e) { /* ignore */ } }
     box.setBackground('#DDEBF7').setHorizontalAlignment('left');
   }
+  // Header values (price date, prior price date, financials source) read left to right.
+  ['priceDate', 'priorDate', 'financialsSource'].forEach(function (k) {
+    var h = model.header[k];
+    if (h) sh.getRange(h.row + 1, h.col + 1).setHorizontalAlignment('left').setVerticalAlignment('middle');
+  });
   var pr = model.header.priorDate;
   if (pr) sh.getRange(pr.row + 1, pr.col + 1).setNumberFormat('dd-mmm-yyyy');
+  // Text columns left, numbers stay right (template convention).
+  ['company', 'ticker', 'revenueBasis', 'ebitdaBasis', 'financialPeriod', 'notes'].forEach(function (k) {
+    var c = model.map.cols[k];
+    if (c !== undefined) sh.getRange(model.map.headerRow + 2, c + 1, Math.max(1, sh.getLastRow() - model.map.headerRow - 1), 1).setHorizontalAlignment('left');
+  });
 
   // Notes and text columns: wrap so nothing spills into the next cell.
   ['notes', 'revenueBasis', 'ebitdaBasis', 'financialPeriod'].forEach(function (k) {
