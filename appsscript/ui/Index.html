@@ -48,9 +48,11 @@
   .logo { height: 26px; width: auto; color: var(--ink); display: block; }
   .lockup .div { width: 1px; height: 26px; background: #D5DBE8; }
   /* Product name set like areta.io headings: Instrument Sans semibold, tight tracking, black; baseline on the wordmark's baseline. */
-  .lockup { align-items: flex-end; }
-  .lockup .sub { font-family: 'Instrument Sans', system-ui, sans-serif; font-weight: 600; font-size: 28px; line-height: 1; letter-spacing: -.035em; color: var(--ink); white-space: nowrap; margin-bottom: -4px; }
-  .lockup .div { align-self: center; }
+  .lockup { align-items: center; }
+  .lockup .sub { font-family: 'Instrument Sans', system-ui, sans-serif; font-weight: 600; font-size: 30px; line-height: 1; letter-spacing: -.035em; color: var(--ink); white-space: nowrap;
+    /* Trim the line box to cap-height..baseline so flex centring centres the capitals on the wordmark (Safari 18+, Chrome 133+). */
+    text-box: trim-both cap alphabetic; }
+  @supports not (text-box: trim-both cap alphabetic) { .lockup .sub { transform: translateY(-1px); } }
   .lockup .sub em { font-style: normal; }
   .spacer { flex: 1; }
   .prof { position: relative; }
@@ -77,8 +79,8 @@
   .hero .slash { position: absolute; right: 6%; top: -30%; width: 280px; height: 160%; background: linear-gradient(180deg, rgba(14,79,245,0), rgba(14,79,245,.08) 40%, rgba(14,79,245,0)); transform: skewX(-24deg); pointer-events: none; }
   .eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); }
   .eyebrow:before { content: ''; width: 18px; height: 2px; background: var(--blue); border-radius: 2px; }
-  .hero .head { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
-  .hero h1 { margin: 0 0 -12px; font-size: 48px; line-height: 1; color: var(--ink); max-width: 900px; }
+  .hero .head { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+  .hero h1 { margin: 0 0 -8px; font-size: 48px; line-height: 1; color: var(--ink); max-width: 900px; }
   .sched { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
   .pulse { position: relative; width: 8px; height: 8px; border-radius: 50%; background: #1E9E5A; flex: none; }
   .pulse:after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: #1E9E5A; animation: pulse 2.4s var(--ease-out) infinite; }
