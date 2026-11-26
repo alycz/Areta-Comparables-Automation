@@ -265,7 +265,7 @@ function applyImport(opts) {
     var summary = 'Applied ' + applied + ' changes across ' + Object.keys(companies).length + ' companies. Source files moved to Processed/' + dest.getName() + '.';
     finishRun(run, 'OK', summary);
     lock.releaseLock();
-    runModelChecks({ trigger: opts.trigger, quiet: true });
+    if (!opts.skipChecks) runModelChecks({ trigger: opts.trigger, quiet: true });
     return { applied: applied, companies: Object.keys(companies).length, summary: summary };
   } catch (e) {
     finishRun(run, 'Failed', String(e && e.message || e));

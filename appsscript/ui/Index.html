@@ -109,6 +109,7 @@
     <div class="spacer"></div>
     <span class="user" id="user"></span>
     <button class="ghost" onclick="load()">Refresh view</button>
+    <button data-act="runall">▶ Run all steps</button>
     <button class="primary" id="openModel">Open model ↗</button>
   </div>
 
@@ -128,20 +129,20 @@
 
       <div class="steps">
         <div class="step">
-          <div class="n">1</div><h3>Share prices</h3>
-          <p>Runs automatically every week. Pulls Google Finance, cross-checks a second source, keeps last week's close as the prior price.</p>
-          <button class="primary" data-act="prices">Refresh prices now</button>
-        </div>
-        <div class="step">
-          <div class="n">2</div><h3>New CIQ exports</h3>
-          <p>Drop the Capital IQ "Financials" exports for any companies that have reported. Others keep their current numbers.</p>
+          <div class="n">1</div><h3>New CIQ exports</h3>
+          <p>Drop Capital IQ "Financials" exports for companies that have reported, then read them. Others keep their current numbers.</p>
           <label class="drop" id="drop"><input type="file" id="file" multiple accept=".xls,.xlsx" hidden><span id="dropText">Drop .xls files here or click to choose</span></label>
           <button data-act="stage" id="stageBtn">Read &amp; validate exports</button>
         </div>
         <div class="step">
-          <div class="n">3</div><h3>Review &amp; apply</h3>
+          <div class="n">2</div><h3>Review &amp; apply</h3>
           <p>See every proposed change with its source cell. Blocked items never reach the model. Apply writes only the blue input cells.</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" data-act="apply" id="applyBtn">Apply changes</button><button data-act="discard">Discard</button></div>
+        </div>
+        <div class="step">
+          <div class="n">3</div><h3>Share prices</h3>
+          <p>Runs automatically every week. Pulls Google Finance, cross-checks a second source, keeps last week's close as the prior price.</p>
+          <button class="primary" data-act="prices">Refresh prices now</button>
         </div>
         <div class="step">
           <div class="n">4</div><h3>Controls &amp; report</h3>
@@ -290,7 +291,8 @@
     apply: { fn: 'api_apply', label: 'Applying…', tab: 'comps' },
     discard: { fn: 'api_discard', label: 'Discarding…' },
     checks: { fn: 'api_checks', label: 'Checking…', tab: 'exc' },
-    report: { fn: 'api_report', label: 'Building report…' }
+    report: { fn: 'api_report', label: 'Building report…' },
+    runall: { fn: 'api_runAll', label: 'Running 1 → 5…', tab: 'exc' }
   };
   document.querySelectorAll('[data-act]').forEach(function (b) {
     b.addEventListener('click', function () {
@@ -298,7 +300,7 @@
       var go = function () {
         b.disabled = true; b.innerHTML = '<span class="spin"></span>' + a.label;
         return call(a.fn).then(function (r) {
-          if (b.dataset.act === 'report' && r.url) { window.open(r.url, '_blank'); toast('Validation report rebuilt. Opening the tab…'); }
+          if (b.dataset.act === 'report' && r.url) { window.open(r.url, '_blank'); toast('Validation report rebuilt' + (r.pdfUrl ? ' and a PDF copy saved to Drive' : '') + '. Opening the tab…'); }
           else toast((r && (r.summary || r.message)) || 'Done.');
           if (a.tab) showTab(a.tab);
           return load();

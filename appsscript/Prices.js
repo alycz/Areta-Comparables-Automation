@@ -35,7 +35,7 @@ function refreshPrices(opts) {
     var useCross = String(settings.crossCheck).toUpperCase() === 'YES';
     var history = readHistory();
     var issues = [], audit = [], histRows = [];
-    var priceDates = [];
+    var priceDates = [], priorDatesUsed = [];
     var updated = 0, failed = 0;
 
     cos.forEach(function (co, i) {
@@ -73,6 +73,7 @@ function refreshPrices(opts) {
         setCell(model.sheet, co.row, model.map.cols.price, q.price);
         audit.push({ action: 'Price', company: co.name, ticker: co.ticker, field: 'Price', oldV: cur.price, newV: q.price, source: { file: 'GOOGLEFINANCE', sheet: '', cell: t.google, label: 'Last price, trade date ' + priceDate, raw: q.price } });
       }
+      if (prior) { prior = { date: prior.date, price: Math.round(prior.price * 10000) / 10000 }; priorDatesUsed.push(prior.date); }
       if (prior && cur.priorPrice !== prior.price) {
         setCell(model.sheet, co.row, model.map.cols.priorPrice, prior.price);
         audit.push({ action: 'Price', company: co.name, ticker: co.ticker, field: 'Prior Price', oldV: cur.priorPrice, newV: prior.price, source: { file: priorSrc, sheet: '', cell: t.google, label: 'Close on ' + prior.date, raw: prior.price } });
@@ -84,10 +85,8 @@ function refreshPrices(opts) {
     if (mode === 'weekly' && priceDates.length) {
       var pd = mostCommon(priceDates);
       if (model.header.priceDate) setCell(model.sheet, model.header.priceDate.row, model.header.priceDate.col, isoToDate(pd));
-      var priorDates = [];
-      model.layout.companies.forEach(function (co) { var p = pickPriorPrice(historyFor(history.concat(histToObjs(histRows)), co.ticker), pd, Number(settings.priorPriceMinDays)); if (p) priorDates.push(p.date); });
-      if (model.header.priorDate && priorDates.length) {
-        setCell(model.sheet, model.header.priorDate.row, model.header.priorDate.col, isoToDate(mostCommon(priorDates)));
+      if (model.header.priorDate && priorDatesUsed.length) {
+        setCell(model.sheet, model.header.priorDate.row, model.header.priorDate.col, isoToDate(mostCommon(priorDatesUsed)));
         model.sheet.getRange(model.header.priorDate.row + 1, model.header.priorDate.col + 1).setNumberFormat('dd-mmm-yyyy');
       }
       var mixed = priceDates.filter(function (d) { return d !== pd; });
@@ -101,7 +100,7 @@ function refreshPrices(opts) {
     var summary = (mode === 'weekly' ? 'Updated ' + updated + ' of ' + cos.length + ' prices' : 'Saved ' + histRows.length + ' price snapshots') +
       (failed ? ', ' + failed + ' failed (previous price kept)' : '') + '. ' + countBy(issues) + '.';
     finishRun(run, failed ? 'Partial' : 'OK', summary);
-    if (mode === 'weekly') runModelChecks({ trigger: opts.trigger, quiet: true });
+    if (mode === 'weekly' && !opts.skipChecks) runModelChecks({ trigger: opts.trigger, quiet: true });
     return { runId: run.id, summary: summary, updated: updated, failed: failed, issues: issues.length };
   } catch (e) {
     finishRun(run, 'Failed', String(e && e.message || e));

@@ -18,17 +18,19 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu(APP_NAME)
     .addItem('Open dashboard', 'menuOpenSidebar')
     .addSeparator()
-    .addItem('Refresh share prices now', 'menuRefreshPrices')
-    .addItem('Import CIQ exports from inbox', 'menuImport')
-    .addItem('Apply reviewed financial changes', 'menuApply')
+    .addItem('1. Import CIQ exports (from inbox)', 'menuImport')
+    .addItem('2. Apply financial changes', 'menuApply')
+    .addItem('3. Refresh share prices', 'menuRefreshPrices')
+    .addItem('4. Run checks', 'menuChecks')
+    .addItem('5. Build validation report', 'menuReport')
     .addSeparator()
-    .addItem('Run checks', 'menuChecks')
-    .addItem('Build validation report', 'menuReport')
-    .addItem('Repair formulas', 'menuRepair')
+    .addItem('▶ Run all steps (1 → 5)', 'menuRunAll')
     .addSeparator()
-    .addItem('Set up / reinstall schedule', 'menuSetup')
-    .addItem('Open CIQ inbox folder', 'menuOpenInbox')
-    .addItem('Open web app', 'menuOpenWebApp')
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('Tools')
+      .addItem('Open CIQ inbox folder', 'menuOpenInbox')
+      .addItem('Open web app', 'menuOpenWebApp')
+      .addItem('Repair formulas', 'menuRepair')
+      .addItem('Set up / reinstall schedule', 'menuSetup'))
     .addToUi();
 }
 
@@ -42,7 +44,40 @@ function menuRefreshPrices() { toast_(refreshPrices({ trigger: 'manual' }).summa
 function menuImport() { var r = stageImport({ trigger: 'manual' }); toast_(r.summary || r.message); var sh = ss_().getSheetByName(SHEETS.REVIEW); if (sh) sh.activate(); }
 function menuApply() { toast_(applyImport({ trigger: 'manual' }).summary || 'Nothing to apply.'); }
 function menuChecks() { toast_(runModelChecks({ trigger: 'manual' }).summary); var sh = ss_().getSheetByName(SHEETS.EXCEPTIONS); if (sh) sh.activate(); }
-function menuReport() { var r = buildValidationReport(); toast_('Validation report updated.'); ss_().getSheetByName(r.sheet).activate(); }
+function menuReport() { var r = buildValidationReport(); toast_('Validation report rebuilt' + (r.pdfUrl ? '; dated PDF saved to Drive › Reports' : '') + '.'); ss_().getSheetByName(r.sheet).activate(); }
+function menuRunAll() {
+  var ui = SpreadsheetApp.getUi();
+  var ok = ui.alert('Run all steps', 'This will:\n\n1. Import any CIQ exports in the inbox\n2. Apply every change that passed validation (Ready and Review). Blocked values are never written.\n3. Refresh share prices\n4. Run checks\n5. Build the validation report\n\nItems needing judgement stay open on the Exceptions tab for sign-off. Continue?', ui.ButtonSet.OK_CANCEL);
+  if (ok !== ui.Button.OK) return;
+  var r = runAll({ trigger: 'manual' });
+  ui.alert('Run all: done', r.lines.join('\n'), ui.ButtonSet.OK);
+  ss_().getSheetByName(REPORT_SHEET).activate();
+}
+
+/**
+ * Steps 1-5 in order. Review items are applied (they are flagged, not wrong);
+ * Blocked items are never written. Stops cleanly if a step fails.
+ */
+function runAll(opts) {
+  opts = opts || {};
+  var lines = [];
+  function step(label, fn) {
+    try { var r = fn(); lines.push('✓ ' + label + (r ? ': ' + r : '')); return true; }
+    catch (e) { lines.push('✗ ' + label + ': ' + (e && e.message || e)); return false; }
+  }
+  var staged = null;
+  step('1. Import', function () { staged = stageImport({ trigger: opts.trigger || 'run-all' }); return staged.summary || staged.message; });
+  step('2. Apply', function () {
+    if (!staged || !staged.files) return 'nothing to apply';
+    if (staged.applied) return staged.applied.summary;
+    return applyImport({ trigger: opts.trigger || 'run-all', skipChecks: true }).summary;
+  });
+  step('3. Prices', function () { return refreshPrices({ trigger: opts.trigger || 'run-all', skipChecks: true }).summary; });
+  step('4. Checks', function () { return runModelChecks({ trigger: opts.trigger || 'run-all' }).summary; });
+  step('5. Report', function () { buildValidationReport(); return 'Validation Report tab rebuilt and PDF saved to Drive'; });
+  return { lines: lines };
+}
+
 function menuRepair() { toast_(repairFormulas().summary); }
 function menuSetup() { var r = setup(); SpreadsheetApp.getUi().alert(APP_NAME + ' is ready', r.message, SpreadsheetApp.getUi().ButtonSet.OK); }
 function menuOpenInbox() {
@@ -83,7 +118,9 @@ function setup() {
   sheetWithHeaders(SHEETS.HISTORY, HISTORY_HEADERS, { widths: [100, 140, 160, 100, 80, 120, 130, 170, 150] });
   sheetWithHeaders(SHEETS.AUDIT, AUDIT_HEADERS, { widths: [140, 160, 180, 90, 170, 130, 120, 110, 110, 260, 150, 150, 260, 120, 300] });
   sheetWithHeaders(SHEETS.RUNS, RUN_HEADERS, { widths: [170, 150, 150, 200, 90, 90, 90, 700] });
+  styleComps_(model);
   addReadMeSection_();
+  buildStartHere_();
   orderTabs_();
   var trig = installTriggers();
   var run = startRun('setup', 'manual');
@@ -96,10 +133,10 @@ function setup() {
 
 function orderTabs_() {
   var ss = ss_();
-  var order = [SHEETS.COMPS, SHEETS.EXCEPTIONS, SHEETS.REVIEW, 'Validation Report', SHEETS.README, SHEETS.CONFIG, SHEETS.HISTORY, SHEETS.AUDIT, SHEETS.RUNS];
+  var order = [START_SHEET, SHEETS.COMPS, SHEETS.EXCEPTIONS, SHEETS.REVIEW, 'Validation Report', SHEETS.README, SHEETS.CONFIG, SHEETS.HISTORY, SHEETS.AUDIT, SHEETS.RUNS];
   var pos = 1;
   order.forEach(function (n) { var sh = ss.getSheetByName(n); if (sh) { ss.setActiveSheet(sh); ss.moveActiveSheet(pos++); } });
-  ss.setActiveSheet(ss.getSheetByName(SHEETS.COMPS));
+  ss.setActiveSheet(ss.getSheetByName(START_SHEET) || ss.getSheetByName(SHEETS.COMPS));
 }
 
 /** Append the operating instructions to the Read Me tab (once). */
@@ -107,19 +144,17 @@ function addReadMeSection_() {
   var sh = ss_().getSheetByName(SHEETS.README);
   if (!sh) return;
   var vals = sh.getRange(1, 2, sh.getMaxRows(), 1).getValues();
-  for (var i = 0; i < vals.length; i++) if (String(vals[i][0]).indexOf('Automation (Areta Comps engine)') === 0) return;
+  for (var i = 0; i < vals.length; i++) {
+    if (String(vals[i][0]).indexOf('Automation (Areta Comps engine)') === 0) {
+      // Replace the older long section with a pointer to the Start Here tab.
+      sh.getRange(i + 1, 2, Math.max(1, sh.getLastRow() - i), 1).clearContent();
+      break;
+    }
+  }
   var start = sh.getLastRow() + 2;
-  var lines = [
-    ['Automation (Areta Comps engine)'],
-    ['Prices: refreshed automatically every week (Config tab sets day and hour) from Google Finance, cross-checked against a second public source, and saved to Price History. Prior price = the saved close one week earlier.'],
-    ['Financials: drop new CIQ "Financials" exports into the CIQ inbox (menu › Open CIQ inbox folder, or upload in the dashboard), then Import → review → Apply. Companies without a new export keep their current values.'],
-    ['Controls: every import rebuilds market cap and EV and reconciles them to CIQ. Exceptions tab lists ERROR (value not written), REVIEW (banker judgement) and INFO items; mark items Reviewed to sign them off.'],
-    ['Traceability: Audit Trail records every value written with its source file, tab and cell. Run Log records every run. Notes column items starting "⚑" are written by the engine; your own notes are never overwritten.'],
-    ['Formulas (black cells) are installed by the engine. If one is overwritten, Run checks flags it and Repair formulas restores it.']
-  ];
-  sh.getRange(start, 2, lines.length, 1).setValues(lines);
+  sh.getRange(start, 2, 2, 1).setValues([['Automation (Areta Comps engine)'], ['Prices, CIQ imports, checks and the validation report are automated. See the Start Here tab for the steps, and the Areta Comps menu to run them.']]);
   sh.getRange(start, 2).setFontWeight('bold');
-  sh.getRange(start + 1, 2, lines.length - 1, 1).setWrap(true);
+  sh.getRange(start + 1, 2).setWrap(true);
 }
 
 /** (Re)install the time-driven triggers from the Config tab. */
@@ -204,5 +239,6 @@ function api_setQueue(idxs, value) { guard_(); return setQueueApply(idxs, value)
 function api_checks() { guard_(); return runModelChecks({ trigger: 'manual' }); }
 function api_repair() { guard_(); return repairFormulas(); }
 function api_review(keys, comment) { guard_(); return { updated: markExceptionsReviewed(keys, comment) }; }
-function api_report() { guard_(); var r = buildValidationReport(); return { url: ss_().getUrl() + '#gid=' + r.gid }; }
+function api_report() { guard_(); var r = buildValidationReport(); return { url: ss_().getUrl() + '#gid=' + r.gid, pdfUrl: r.pdfUrl }; }
+function api_runAll() { guard_(); var r = runAll({ trigger: 'manual' }); return { summary: r.lines.join(' · ') }; }
 function api_setup() { guard_(); return setup(); }

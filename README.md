@@ -19,20 +19,22 @@ On the supplied data, all 20 exports parse and 200 fields are extracted. Market 
 
 ## How a banker uses it
 
-The one-page version is [docs/BANKER_GUIDE.md](docs/BANKER_GUIDE.md).
+The one-page version is [docs/BANKER_GUIDE.md](docs/BANKER_GUIDE.md). The Sheet opens on a **Start Here** tab, which shows the live status, these steps and the links. The **Areta Comps** menu is numbered in run order:
 
-1. **Prices.** Nothing to do. Every Monday at 07:00 London time (configurable) the engine refreshes prices and recalculates the model. Use **Refresh prices now** for an ad-hoc update.
-2. **New results.** Export the company's *Financials* from Capital IQ in the usual format (millions, US$). Drop the files in the dashboard, or in the **CIQ Inbox** Drive folder, and click **Read & validate exports**.
-3. **Review & apply.** The Review Queue lists every proposed change with old value, new value, % change, status and source cell:
-   - **Ready**: passed every check.
-   - **Review**: written once applied, but flagged for judgement.
-   - **Blocked**: never written; the current value is kept.
+| Menu | What it does | When |
+|---|---|---|
+| **1. Import CIQ exports** | Reads every export in the CIQ Inbox folder, matches it by ticker, extracts the fields, reconciles them to CIQ and fills the **Review Queue**: **Ready** (passed every check), **Review** (flagged for judgement) or **Blocked** (never written). | When companies report |
+| **2. Apply financial changes** | Writes the ticked queue rows into the blue input cells only, and moves the files to Processed. | After a quick look at the queue |
+| **3. Refresh share prices** | Pulls Google Finance prices, cross-checks them against Yahoo Finance, saves them to Price History and sets the prior price. | Automatic every Monday 07:00 London; by hand any time |
+| **4. Run checks** | Recomputes every formula independently, and flags hardcodes, #errors, missing inputs and outliers on the **Exceptions** tab. | Runs after steps 2 and 3 anyway |
+| **5. Build validation report** | Rebuilds the **Validation Report** tab and saves a dated PDF copy to Drive › Reports. | Before sending numbers out |
+| **▶ Run all steps** | Runs 1 → 5. Ready and Review rows are applied, and Review items stay open on Exceptions for sign-off. Blocked rows are never written. | One click for the weekly routine |
 
-   Untick anything you disagree with, then click **Apply changes**.
-4. **Sign off.** The **Exceptions** tab and dashboard list the open items. Tick them and click **Mark reviewed**, with a comment. Sign-offs carry over between runs.
-5. **Report.** **Build report** writes the **Validation Report** tab, which covers what changed, what needs judgement, what was blocked, run history and method.
+Sign off judgement items on the **Exceptions** tab: set Status to Reviewed and add a comment. Sign-offs persist between runs. The same actions are available in the branded dashboard (**Open dashboard** in the menu) and in the web app.
 
 Companies without a new export keep their existing figures. Bankers' own notes in the Notes column are never overwritten; engine flags start with ⚑.
+
+**Who can use it:** anyone the Sheet is shared with as an editor, each with their own Google account. Every run and change is logged under that person's email. Scheduled refreshes run under the account that set them up. The `allowedUsers` setting on the Config tab can limit the web app to named people.
 
 ## What's in the Sheet
 
@@ -41,7 +43,8 @@ Companies without a new export keep their existing figures. Bankers' own notes i
 | **Comps** | The model. Same structure and formatting as the template. Yellow = weekly inputs (engine), blue = quarterly inputs (engine, after approval), black = formulas (engine-installed). |
 | **Exceptions** | Open ERROR / REVIEW / INFO items with source and sign-off status. |
 | **Review Queue** | Proposed financial changes awaiting Apply. |
-| **Validation Report** | Summary of updates, exceptions and items for manual review. |
+| **Start Here** | Landing page: live status, the steps in order, links, access. |
+| **Validation Report** | Summary of updates, exceptions and items for manual review. One tab, rebuilt each run; dated PDFs are kept in Drive › Reports. |
 | **Read Me** | Areta's conventions, plus an "Automation" section added by the engine. |
 | **Config** | Schedule, thresholds, access list and ticker map. Bankers can edit it; no code needed. |
 | **Price History** | Every price snapshot (date, ticker, price, source, cross-check). |
