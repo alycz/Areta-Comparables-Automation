@@ -235,8 +235,8 @@
   @keyframes cardIn { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
   .login .logo { height: 34px; align-self: center; }
   .login .kicker { text-align: center; margin-top: 26px; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--blue); }
-  .login h2 { margin: 8px 0 0; font-size: 30px; font-weight: 600; letter-spacing: -.035em; white-space: nowrap; text-align: center; line-height: 1.1; color: var(--ink); }
-  .login p { margin: 10px 0 26px; color: var(--muted); font-size: 13.5px; text-align: center; }
+  .login h2 { margin: 28px 0 30px; font-size: 30px; font-weight: 600; letter-spacing: -.035em; white-space: nowrap; text-align: center; line-height: 1.1; color: var(--ink); }
+  .login p { margin: -14px 0 26px; color: var(--muted); font-size: 13.5px; text-align: center; }
   .login label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
   .login input { font: inherit; font-size: 15px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md); text-transform: none; letter-spacing: 0; color: var(--ink); background: #fff; transition: border-color .2s var(--ease-out), box-shadow .2s var(--ease-out); }
   .login input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px var(--frost-2); }
@@ -277,14 +277,12 @@
   <div class="login" id="login">
     <form id="loginForm" autocomplete="on">
       <?!= include('ui/Logo') ?>
-      <div class="kicker">Trading comparables</div>
       <h2>Comparables Automation</h2>
-      <p><?= hasPassword ? 'Sign in to run and review the comparables model.' : 'No password set yet. The model owner sets one in the Sheet: Comparables Automation › Tools › Set web app password.' ?></p>
-      <label>Your name<input id="lgName" name="username" autocomplete="username" placeholder="Shown on the audit trail"></label>
-      <label>Password<input id="lgPw" name="password" type="password" autocomplete="current-password" required></label>
+      <?!= hasPassword ? '' : '<p>No password set yet. The model owner sets one in the Sheet: Comparables Automation › Tools › Set web app password.</p>' ?>
+      <label>Your name<input id="lgName" name="username" autocomplete="username" placeholder="Your name or email"></label>
+      <label>Password<input id="lgPw" name="password" type="password" autocomplete="current-password" placeholder="Password required to enter platform" required></label>
       <div class="err" id="lgErr"></div>
       <button class="primary" type="submit" id="lgBtn">Sign in</button>
-      <div class="fine">Areta · Partner to Leaders of the Digital Economy</div>
     </form>
   </div>
 
