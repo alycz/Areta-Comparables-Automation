@@ -273,9 +273,79 @@
     .hero { padding: 36px 0 28px; } .hero h1 { font-size: 34px; } .kpis, .steps { grid-template-columns: 1fr; }
     .tabs { overflow-x: auto; } .bar input[type=text] { min-width: 0; width: 100%; } .login form { padding: 36px 22px 28px; }
   }
+  /* Guided tour (first login; replay from the profile menu).
+     One spotlight morphs between components; everything else is dimmed but legible.
+     The spotlight leads, the explainer card follows (out fast, in after the move). */
+  .tour { position: fixed; inset: 0; z-index: 90; display: none; opacity: 0; transition: opacity .36s var(--ease-out); -webkit-tap-highlight-color: transparent; }
+  .tour.on { display: block; }
+  .tour.in { opacity: 1; }
+  .tour-spot { position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: 16px; pointer-events: none; will-change: transform, width, height;
+    box-shadow: 0 0 0 200vmax rgba(5, 13, 38, .58); }
+  .tour-ring { position: absolute; inset: 0; border-radius: inherit; opacity: 0; transition: opacity .3s var(--ease-out);
+    box-shadow: 0 0 0 1.5px rgba(255,255,255,.95), 0 0 0 6px rgba(120,157,255,.32), 0 18px 48px rgba(0,0,0,.18); }
+  .tour.landed:not(.center) .tour-ring, .tour.moving:not(.center) .tour-ring { opacity: 1; }
+  .tour-ring:after { content: ''; position: absolute; inset: -1.5px; border-radius: inherit; opacity: 0; }
+  .tour.landed:not(.center) .tour-ring:after { animation: tourRing 2.8s var(--ease-out) .2s infinite; }
+  @keyframes tourRing { 0% { opacity: 1; box-shadow: 0 0 0 0 rgba(120,157,255,.55); } 70%, 100% { opacity: 1; box-shadow: 0 0 0 16px rgba(120,157,255,0); } }
+  .tour-pop { position: absolute; left: 0; top: 0; width: 360px; will-change: transform; }
+  .tour-card { position: relative; background: #fff; border-radius: 18px; overflow: hidden; color: var(--ink);
+    box-shadow: 0 0 0 1px rgba(11,15,26,.06), 0 24px 64px rgba(0,20,80,.30), 0 2px 8px rgba(11,15,26,.08);
+    transition: opacity .3s var(--ease-out), transform .36s var(--ease-out); }
+  .tour-card.out { opacity: 0; transform: translate3d(0, var(--ty, -6px), 0) scale(.97); transition-duration: .12s, .12s; pointer-events: none; }
+  .tour-prog { height: 3px; background: var(--line-2); }
+  .tour-prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--blue), var(--midday)); border-radius: 0 3px 3px 0; transition: width .6s var(--ease-out); }
+  .tour-in { padding: 20px 22px 0; }
+  .tour-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .tour-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); white-space: nowrap; }
+  .tour-eyebrow:before { content: ''; width: 14px; height: 2px; border-radius: 2px; background: currentColor; }
+  .tour-count { font-size: 12px; font-weight: 600; color: var(--faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tour-in h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; letter-spacing: -.015em; line-height: 1.3; }
+  .tour-in p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+  .tour-tip { display: block; margin-top: 14px; padding: 10px 12px; border-radius: 10px; background: var(--frost-2); color: var(--midnight); font-size: 12.5px; line-height: 1.45; }
+  .tour-tip b { font-weight: 600; }
+  .tour-foot { display: flex; align-items: center; gap: 8px; padding: 18px 22px 20px; }
+  .tour-foot button { padding: 8px 15px; font-size: 13px; }
+  .tour-foot .ghost { margin-left: -15px; }
+  .tour-keys { font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+  .tour-keys kbd { font: inherit; font-weight: 600; display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; margin: 0 1px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); font-size: 10.5px; }
+  /* Welcome and finish cards */
+  .tour-card.tour-hero { text-align: left; }
+  .tour-card.tour-hero:before { content: ''; position: absolute; inset: -30% -30% auto auto; width: 80%; height: 90%; pointer-events: none;
+    background: radial-gradient(50% 50% at 60% 40%, rgba(120,157,255,.34), rgba(221,231,255,.22) 50%, rgba(255,255,255,0) 75%); }
+  .tour-card.tour-hero .tour-in { position: relative; padding: 30px 28px 0; }
+  .tour-card.tour-hero .tour-foot { position: relative; padding: 24px 28px 24px; }
+  .tour-card.tour-hero .tour-foot .ghost { margin-left: -15px; }
+  .tour-card.tour-hero .logo { height: 22px; margin-bottom: 26px; }
+  .tour-card.tour-hero h3 { font-family: 'Benne', Georgia, serif; font-weight: 400; font-size: 34px; line-height: 1.05; letter-spacing: -.01em; margin: 0 0 12px; }
+  .tour-card.tour-hero p { font-size: 14px; }
+  .tour-card.tour-hero .tour-meta { margin: 18px 0 0; justify-content: flex-start; gap: 14px; }
+  .tour-done { width: 44px; height: 44px; margin-bottom: 22px; display: block; }
+  .tour-done circle { fill: var(--frost); }
+  .tour-done path { fill: none; stroke: var(--blue); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 24; stroke-dashoffset: 24; }
+  .tour-card:not(.out) .tour-done path { animation: tourTick .5s var(--ease-out) .25s forwards; }
+  @keyframes tourTick { to { stroke-dashoffset: 0; } }
+  /* Small cause-and-effect beats on the component being shown */
+  body.touring .kpi { transition: translate .4s var(--ease-out), box-shadow .4s var(--ease-out), border-color .4s var(--ease-out); }
+  .kpi.tour-lift { translate: 0 -4px; box-shadow: var(--shadow-md); border-color: var(--midday); }
+  .fl.tour-ping { animation: tourPing 1.4s var(--ease-out) 3; }
+  @keyframes tourPing { 0% { box-shadow: 0 0 0 0 rgba(217,154,0,.55); } 100% { box-shadow: 0 0 0 9px rgba(217,154,0,0); } }
+  .step.all:after { translate: 0 0; }
+  .step.all.tour-shine:after { animation: tourShine 1.2s var(--ease-in-out); }
+  @keyframes tourShine { from { translate: -420px 0; } to { translate: 0 0; } }
+  .mi.tour-hl { background: var(--frost-2); color: var(--midnight); }
+  @media (max-width: 720px) {
+    .tour-keys { display: none; }
+    .tour-card.tour-hero h3 { font-size: 30px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *:before, *:after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     .rise { opacity: 1; transform: none; }
+    /* The tour keeps a plain crossfade so step changes still read, with no movement. */
+    .tour { transition: opacity .2s linear !important; }
+    .tour-card, .tour-card.out { transform: none !important; transition: opacity .18s linear !important; }
+    .tour-ring:after { display: none; }
+    .tour-done path { stroke-dashoffset: 0; }
   }
 </style>
 </head>
@@ -344,6 +414,7 @@
         <div class="menu" id="menu" role="menu">
           <div class="me"><div class="av lg" id="av2">·</div><div style="min-width:0"><div class="nm1" id="user">Signed in</div><div class="nm2" id="userSub">Areta Comparables Automation</div></div></div>
           <button class="mi" id="openModel2" role="menuitem">Open the Google Sheet ↗</button>
+          <button class="mi" id="replayTour" role="menuitem">Take the tour again</button>
           <button class="mi signout" id="signout" role="menuitem">Sign out</button>
         </div>
       </div>
@@ -541,7 +612,7 @@
   var FIRST = true;
   function load(manual) {
     if (manual) toast('Refreshing…');
-    return call('api_dashboard').then(function (j) { STATE = JSON.parse(j); if (MODE === 'web') document.body.classList.add('authed'); render(); if (manual) toast('Up to date.'); })
+    return call('api_dashboard').then(function (j) { STATE = JSON.parse(j); if (MODE === 'web') document.body.classList.add('authed'); render(); if (manual) toast('Up to date.'); Tour.maybe(); })
       .catch(function (e) { if (!/^Signed out/.test(e.message)) toast(e.message || e, true); });
   }
 
@@ -753,6 +824,325 @@
     });
     window.addEventListener('scroll', function () { cur = null; tip.classList.remove('show'); }, true);
   })();
+  // ---------------------------------------------------------------------------
+  // Guided tour. Shown once per browser after the first sign-in, replayable from
+  // the profile menu (or ?tour=1). A single spotlight morphs from component to
+  // component (it tracks the live rect every frame, so it stays glued through
+  // smooth scrolling and resizes); the explainer card fades out fast, swaps, and
+  // comes back once the spotlight has mostly arrived.
+  // ---------------------------------------------------------------------------
+  var Tour = (function () {
+    var KEY = 'aretaTourSeen', memSeen = false;
+    function seen() { try { return localStorage.getItem(KEY) === '1'; } catch (e) { return memSeen; } }
+    function markSeen() { memSeen = true; try { localStorage.setItem(KEY, '1'); } catch (e) { /* memory only */ } }
+
+    // Cubic-bezier easing for the spotlight: decisive start, long soft settle.
+    function bezier(x1, y1, x2, y2) {
+      function a(p1, p2) { return 1 - 3 * p2 + 3 * p1; } function b(p1, p2) { return 3 * p2 - 6 * p1; } function c(p1) { return 3 * p1; }
+      function at(t, p1, p2) { return ((a(p1, p2) * t + b(p1, p2)) * t + c(p1)) * t; }
+      function slope(t, p1, p2) { return 3 * a(p1, p2) * t * t + 2 * b(p1, p2) * t + c(p1); }
+      return function (x) {
+        if (x <= 0) return 0; if (x >= 1) return 1;
+        var t = x; for (var k = 0; k < 8; k++) { var s = slope(t, x1, x2); if (Math.abs(s) < 1e-6) break; t -= (at(t, x1, x2) - x) / s; }
+        return at(Math.min(1, Math.max(0, t)), y1, y2);
+      };
+    }
+    var EASE = bezier(0.5, 0, 0.12, 1);
+
+    function firstName() {
+      var u = String((STATE && STATE.user) || '').replace(/ \(web\)$/, '').trim();
+      if (!u || /@/.test(u)) return '';
+      var f = u.split(/\s+/)[0]; return f.charAt(0).toUpperCase() + f.slice(1);
+    }
+    var later = []; function beat(fn, ms) { later.push(setTimeout(fn, ms)); }
+    function clearBeats() { later.forEach(clearTimeout); later = []; }
+    function all(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+
+    var TICK = '<svg class="tour-done" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="22"/><path d="M14.5 22.5 19.5 27.5 29.5 16.5"/></svg>';
+
+    var STEPS = [
+      { center: true, kind: 'welcome', scroll: 0,
+        title: function () { var f = firstName(); return f ? 'Welcome, ' + esc(f) + '.' : 'Welcome.'; },
+        body: 'A quick look around Comparables Automation: where the numbers come from, how a weekly update runs, and where to check the results. You can replay it any time from your profile menu.' },
+      { el: '.top .lockup', inHeader: true, scroll: 0, eyebrow: 'Your workspace',
+        title: 'Comparables Automation',
+        body: 'This dashboard runs Areta\'s trading comparables model. Everything here reads from and writes to one Google Sheet, which stays the source of truth.' },
+      { el: '#openModel', inHeader: true, scroll: 0, pad: 6, eyebrow: 'The model',
+        title: 'Open the model any time',
+        body: 'Jump straight into the Google Sheet. Every value the dashboard writes lands there, and each change is logged on the Audit Trail tab.' },
+      { el: '.hero .head', eyebrow: 'Coverage', pad: 12,
+        title: 'The peer universe at a glance',
+        body: 'Sector, number of companies and peer groups, and when share prices next refresh on their own.' },
+      { el: '#kpis', eyebrow: 'Health check', pad: 10,
+        title: 'Five numbers that say if the model is current',
+        body: 'Price date, the LTM period behind the financials, errors that stopped a value being written, items waiting for your judgement, and new files in the CIQ inbox.',
+        beat: function () { all('#kpis .kpi').forEach(function (k, n) { beat(function () { k.classList.add('tour-lift'); }, n * 80); beat(function () { k.classList.remove('tour-lift'); }, n * 80 + 520); }); },
+        leave: function () { all('#kpis .kpi').forEach(function (k) { k.classList.remove('tour-lift'); }); } },
+      { el: '.steps .step:nth-child(1)', eyebrow: 'Workflow · 01',
+        title: 'Import Capital IQ exports',
+        body: 'Drop the CIQ Financials export for each company that has reported. Files are matched by ticker and reconciled before anything is proposed.',
+        tip: 'The line at the foot of every card shows when that step last ran.',
+        beat: function () { var d = $('#drop'); beat(function () { d.classList.add('over'); }, 80); beat(function () { d.classList.remove('over'); }, 1300); },
+        leave: function () { $('#drop').classList.remove('over'); } },
+      { el: '.steps .step:nth-child(2)', eyebrow: 'Workflow · 02',
+        title: 'Review, then apply',
+        body: 'Each proposed change shows the current value, the new one and the CIQ cell it came from. Blocked values never reach the model, and only blue input cells are written.' },
+      { el: '.steps .step:nth-child(3)', eyebrow: 'Workflow · 03',
+        title: 'Share prices, every Monday',
+        body: 'Prices come from Google Finance and are cross-checked against a second source. Last week\'s close becomes the prior price, so the weekly change always means something.' },
+      { el: '.steps .step:nth-child(4)', eyebrow: 'Workflow · 04',
+        title: 'Check and report',
+        body: 'Every formula is recalculated independently. Hardcodes, errors and outliers are flagged, and the validation report is rebuilt with a dated PDF copy.' },
+      { el: '.steps .step.all', eyebrow: 'Workflow · 05',
+        title: 'Or run the whole cycle at once',
+        body: 'Run all steps does 01 to 04 in order. Ready and Review items are applied, Blocked values are skipped, and anything that needs judgement stays open for sign-off.',
+        beat: function () { var s = $('.steps .step.all'); s.classList.remove('tour-shine'); void s.offsetWidth; s.classList.add('tour-shine'); beat(function () { s.classList.remove('tour-shine'); }, 1300); } },
+      { el: '#tabs', eyebrow: 'Views', pad: 6,
+        title: 'Four views of the model',
+        body: 'Comparables is the live output. Exceptions and Review queue carry counts of what needs you. Activity is the run log, and Refresh data pulls the latest from the Sheet.',
+        enter: function () { showTab('comps'); },
+        beat: function () { ['exc', 'queue', 'runs', 'comps'].forEach(function (t, n) { beat(function () { showTab(t); }, 500 + n * 850); }); },
+        leave: function () { showTab('comps'); } },
+      { el: '#p-comps .card', eyebrow: 'Comparables', pad: 6,
+        title: 'The comparables table',
+        body: 'Trading multiples by peer group, with each group\'s median and the all-companies median. NM means the denominator is zero or negative, and medians skip it.',
+        tip: 'A <b>⚑</b> beside a company means the engine flagged something. Hover it for the detail.',
+        enter: function () { showTab('comps'); },
+        beat: function () { all('#comps .fl').forEach(function (f) { f.classList.add('tour-ping'); }); },
+        leave: function () { all('#comps .fl').forEach(function (f) { f.classList.remove('tour-ping'); }); } },
+      { el: '#p-exc .card', eyebrow: 'Exceptions', pad: 6,
+        title: 'Exceptions and sign-off',
+        body: 'Every error, review item and note the checks raised, with its source. Tick items, add an optional comment and mark them reviewed. Sign-offs are kept with your name.',
+        enter: function () { showTab('exc'); } },
+      { el: '#p-queue .card', eyebrow: 'Review queue', pad: 6,
+        title: 'Proposed changes, before they are written',
+        body: 'Everything the latest import wants to change. Untick anything you don\'t want, then apply the rest in one go.',
+        enter: function () { showTab('queue'); },
+        leave: function () { showTab('comps'); } },
+      { el: '#menu', inHeader: true, pad: 6, eyebrow: 'Profile',
+        title: 'Your profile menu',
+        body: 'Open the Google Sheet, take this tour again, or sign out.',
+        enter: function () { $('#prof').classList.add('open'); $('#avbtn').setAttribute('aria-expanded', 'true'); $('#replayTour').classList.add('tour-hl'); },
+        leave: function () { $('#prof').classList.remove('open'); $('#avbtn').setAttribute('aria-expanded', 'false'); $('#replayTour').classList.remove('tour-hl'); } },
+      { center: true, kind: 'finish',
+        title: 'You\'re all set.',
+        body: 'When new CIQ exports arrive, start at step 01, or press Run all steps to do the whole cycle. Anything that needs you shows up under Exceptions.' }
+    ];
+
+    var root, spot, pop, card, prog, i = -1, running = false, closing = false, raf = 0;
+    var disp = null, from = null, t0 = 0, dur = 0, plan = null, vis = null, timers = [], lastFocus = null;
+    var GAP = 14, M = 16;
+
+    function stops() { return STEPS.filter(function (s) { return !s.center; }); }
+    function vw() { return document.documentElement.clientWidth; }
+    function vh() { return window.innerHeight; }
+    function headerBottom() { var t = $('.top'); return t ? Math.max(0, t.getBoundingClientRect().bottom) : 0; }
+    function popW() { return Math.min(360, vw() - 2 * M); }
+    function usable(s) { if (s.center) return true; var el = $(s.el); if (!el) return false; if (s.enter) return true; var r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 || s.el === '#menu'; }
+    function txt(v) { return typeof v === 'function' ? v() : v; }
+
+    function build() {
+      if (root) return;
+      root = document.createElement('div'); root.className = 'tour'; root.id = 'tour';
+      root.innerHTML = '<div class="tour-spot"><div class="tour-ring"></div></div><div class="tour-pop" role="dialog" aria-modal="true" aria-labelledby="tourTitle" aria-describedby="tourBody"><div class="tour-card out"><div class="tour-prog"><i></i></div><div class="tour-body"></div></div></div>';
+      document.body.appendChild(root);
+      spot = root.querySelector('.tour-spot'); pop = root.querySelector('.tour-pop'); card = root.querySelector('.tour-card'); prog = root.querySelector('.tour-prog i');
+      card.addEventListener('click', function (ev) {
+        var b = ev.target.closest && ev.target.closest('[data-t]'); if (!b) return;
+        var t = b.getAttribute('data-t');
+        if (t === 'next') next(); else if (t === 'back') back(); else end();
+      });
+      // The dimmed page is inert while the tour runs (wheel and touch scrolling still work).
+      root.addEventListener('click', function (ev) { if (!card.contains(ev.target)) { ev.preventDefault(); ev.stopPropagation(); } });
+    }
+
+    function content(s) {
+      var list = stops(), idx = list.indexOf(s) + 1;
+      if (s.kind === 'welcome') {
+        var logo = $('.top .logo'); var lg = logo ? logo.outerHTML : '';
+        return '<div class="tour-in">' + lg + '<h3 id="tourTitle">' + txt(s.title) + '</h3><p id="tourBody">' + s.body + '</p>' +
+          '<div class="tour-meta"><span class="tour-count">' + list.length + ' stops · about a minute</span><span class="tour-keys"><kbd>←</kbd><kbd>→</kbd> to move · <kbd>esc</kbd> to leave</span></div></div>' +
+          '<div class="tour-foot"><button class="ghost" data-t="skip">Not now</button><div class="spacer"></div><button class="primary" data-t="next">Show me around</button></div>';
+      }
+      if (s.kind === 'finish') {
+        return '<div class="tour-in">' + TICK + '<h3 id="tourTitle">' + txt(s.title) + '</h3><p id="tourBody">' + s.body + '</p></div>' +
+          '<div class="tour-foot"><button class="ghost" data-t="back">Back</button><div class="spacer"></div><button class="primary" data-t="done">Start working</button></div>';
+      }
+      return '<div class="tour-in"><div class="tour-meta"><span class="tour-eyebrow">' + s.eyebrow + '</span><span class="tour-count">' + idx + ' of ' + list.length + '</span></div>' +
+        '<h3 id="tourTitle">' + txt(s.title) + '</h3><p id="tourBody">' + s.body + '</p>' + (s.tip ? '<div class="tour-tip">' + s.tip + '</div>' : '') + '</div>' +
+        '<div class="tour-foot"><button class="ghost" data-t="skip">Skip tour</button><div class="spacer"></div><button data-t="back">Back</button><button class="primary" data-t="next">' + (idx === list.length ? 'Finish' : 'Next') + '</button></div>';
+    }
+
+    // Measure the next card off-screen so the plan knows its height before it is shown.
+    function measure(s, w) {
+      var m = card.cloneNode(true); m.className = 'tour-card' + (s.center ? ' tour-hero' : '');
+      m.querySelector('.tour-body').innerHTML = content(s);
+      m.style.cssText = 'position:fixed;left:-10000px;top:0;width:' + w + 'px;visibility:hidden;transition:none';
+      root.appendChild(m); var h = m.offsetHeight; root.removeChild(m); return h;
+    }
+
+    function padOf(s) { return s.pad != null ? s.pad : 8; }
+
+    // Where to scroll, which side the card goes on, and how it aligns.
+    function makePlan(s, ph) {
+      var W = vw(), H = vh(), pw = s.center ? Math.min(440, W - 2 * M) : popW();
+      if (s.center) return { place: 'center', pw: pw, ph: ph, scroll: s.scroll != null ? s.scroll : null };
+      var el = $(s.el), b = el.getBoundingClientRect(), pad = padOf(s);
+      var br = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
+      var curY = window.pageYOffset, maxS = Math.max(0, document.documentElement.scrollHeight - H);
+      var top = b.top - pad, h = b.height + 2 * pad, hb = headerBottom();
+      var scroll = curY, fTop = top;
+      if (s.inHeader) { if (s.scroll != null) { scroll = s.scroll; } }
+      else {
+        var aT = hb + M, aB = H - M, need = h + GAP + ph, docTop = top + curY;
+        if (!(top >= aT && top + need <= aB)) scroll = need <= aB - aT ? docTop - (aT + (aB - aT - need) / 2) : docTop - aT;
+        scroll = Math.round(Math.min(maxS, Math.max(0, scroll)));
+        fTop = docTop - scroll;
+      }
+      var fBot = fTop + h, minTop = s.inHeader ? M : hb + M;
+      var place, cut = null, side = W >= 960;
+      if (H - M - fBot >= ph + GAP) place = 'bottom';
+      else if (fTop - minTop >= ph + GAP) place = 'top';
+      else if (side && W - (b.right + pad) - M >= pw + GAP) place = 'right';
+      else if (side && b.left - pad - M >= pw + GAP) place = 'left';
+      else { place = 'bottom'; cut = H - M - ph - GAP; }
+      var cx = b.left + b.width / 2, align = 'start';
+      if (b.width + 2 * pad < pw) align = cx > W * 0.62 ? 'end' : cx < W * 0.38 ? 'start' : 'middle';
+      return { place: place, align: align, cut: cut, br: br, pad: pad, pw: pw, ph: ph, scroll: scroll };
+    }
+
+    function centerRect() { return { x: vw() / 2, y: vh() / 2, w: 0, h: 0, r: 28 }; }
+    function openRect() { return { x: -80, y: -80, w: vw() + 160, h: vh() + 160, r: 0 }; }
+    function liveRect() {
+      if (closing) return openRect();
+      var s = STEPS[i]; if (!s || s.center || !plan || plan.place === 'center') return centerRect();
+      var el = $(s.el); if (!el) return centerRect();
+      var b = el.getBoundingClientRect(), pad = plan.pad, W = vw(), H = vh();
+      var x1 = Math.max(4, b.left - pad), x2 = Math.min(W - 4, b.right + pad);
+      var y1 = Math.max(s.inHeader ? 4 : headerBottom() + 6, b.top - pad), y2 = Math.min(plan.cut != null ? plan.cut : H - 8, b.bottom + pad);
+      var w = Math.max(0, x2 - x1), h = Math.max(0, y2 - y1);
+      var r = Math.min(plan.br ? plan.br + pad * 0.75 : 12, w / 2, h / 2);
+      return { x: x1, y: y1, w: w, h: h, r: r };
+    }
+
+    function placePop(d) {
+      if (!vis) return;
+      var W = vw(), H = vh(), pw = vis.pw, ph = vis.ph, L, T;
+      if (vis.place === 'center') { L = (W - pw) / 2; T = (H - ph) / 2; }
+      else if (vis.place === 'bottom' || vis.place === 'top') {
+        T = vis.place === 'bottom' ? d.y + d.h + GAP : d.y - GAP - ph;
+        L = vis.align === 'end' ? d.x + d.w - pw : vis.align === 'middle' ? d.x + d.w / 2 - pw / 2 : d.x;
+      } else { L = vis.place === 'right' ? d.x + d.w + GAP : d.x - GAP - pw; T = d.y; }
+      L = Math.min(Math.max(L, M), W - M - pw); T = Math.min(Math.max(T, M), H - M - ph);
+      pop.style.transform = 'translate3d(' + Math.round(L) + 'px,' + Math.round(T) + 'px,0)';
+    }
+
+    function frame(now) {
+      raf = requestAnimationFrame(frame);
+      var d = disp;
+      if (from) {
+        var live = liveRect(), p = dur ? Math.min(1, (now - t0) / dur) : 1, e = EASE(p);
+        d = { x: from.x + (live.x - from.x) * e, y: from.y + (live.y - from.y) * e, w: from.w + (live.w - from.w) * e, h: from.h + (live.h - from.h) * e, r: from.r + (live.r - from.r) * e };
+      }
+      disp = d;
+      spot.style.transform = 'translate3d(' + d.x + 'px,' + d.y + 'px,0)';
+      spot.style.width = d.w + 'px'; spot.style.height = d.h + 'px'; spot.style.borderRadius = d.r + 'px';
+      placePop(d);
+    }
+
+    function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+    function after(fn, ms) { if (REDUCED || !ms) fn(); else timers.push(setTimeout(fn, ms)); }
+
+    function go(n) {
+      if (!running || n < 0 || n >= STEPS.length) return;
+      clearTimers(); clearBeats();
+      var prev = STEPS[i]; if (prev && prev.leave) prev.leave();
+      i = n; var s = STEPS[i];
+      if (!usable(s)) return go(n + (go.dir || 1));
+      if (s.enter) s.enter();
+      root.classList.remove('landed'); root.classList.add('moving'); root.classList.toggle('center', !!s.center);
+      card.classList.add('out');
+      requestAnimationFrame(function () {
+        if (!running) return;
+        var pw = s.center ? Math.min(440, vw() - 2 * M) : popW();
+        var next = makePlan(s, measure(s, pw));
+        plan = next;
+        from = disp || centerRect(); t0 = performance.now(); dur = REDUCED ? 0 : (prev ? 580 : 720);
+        if (next.scroll != null && Math.abs(next.scroll - window.pageYOffset) > 1) window.scrollTo({ top: next.scroll, behavior: REDUCED ? 'auto' : 'smooth' });
+        prog.style.width = (s.kind === 'finish' ? 100 : Math.max(0, stops().indexOf(s) + 1) / stops().length * 100) + '%';
+        after(function () {
+          card.className = 'tour-card out' + (s.center ? ' tour-hero' : '');
+          card.querySelector('.tour-body').innerHTML = content(s);
+          pop.style.width = next.pw + 'px';
+          vis = { place: next.place, align: next.align, pw: next.pw, ph: card.offsetHeight };
+          var ty = next.place === 'bottom' ? -6 : next.place === 'top' ? 6 : 0;
+          card.style.setProperty('--ty', ty + 'px');
+          card.style.transformOrigin = next.place === 'center' ? '50% 50%' : (next.place === 'bottom' ? 'top ' : next.place === 'top' ? 'bottom ' : next.place === 'right' ? 'left ' : 'right ') + (next.align === 'end' ? 'right' : next.align === 'middle' ? 'center' : 'left');
+          if (next.place === 'right' || next.place === 'left') card.style.transformOrigin = (next.place === 'right' ? 'left' : 'right') + ' top';
+        }, 130);
+        after(function () {
+          card.classList.remove('out');
+          var f = card.querySelector('[data-t=next]') || card.querySelector('[data-t=done]'); if (f) f.focus({ preventScroll: true });
+        }, s.center && !prev ? 420 : 330);
+        after(function () { root.classList.remove('moving'); root.classList.add('landed'); if (s.beat && !REDUCED) s.beat(); }, dur + 40);
+      });
+    }
+    function next() { go.dir = 1; if (i >= STEPS.length - 1) end(); else go(nextUsable(i, 1)); }
+    function back() { go.dir = -1; if (i > 0) go(nextUsable(i, -1)); }
+    function nextUsable(from, dir) { var k = from + dir; while (k > 0 && k < STEPS.length - 1 && !usable(STEPS[k])) k += dir; return Math.max(0, Math.min(STEPS.length - 1, k)); }
+
+    function onKey(ev) {
+      if (!running || closing) return;
+      if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); end(); }
+      else if (ev.key === 'ArrowRight') { ev.preventDefault(); next(); }
+      else if (ev.key === 'ArrowLeft') { ev.preventDefault(); back(); }
+      else if (ev.key === 'Tab') { // keep focus inside the card
+        var f = Array.prototype.slice.call(card.querySelectorAll('button')); if (!f.length) return;
+        var k = f.indexOf(document.activeElement);
+        ev.preventDefault(); f[(k + (ev.shiftKey ? -1 : 1) + f.length) % f.length].focus();
+      }
+    }
+    function onResize() { if (!running || closing) return; var s = STEPS[i]; if (!s) return; var p = makePlan(s, vis ? vis.ph : 200); p.scroll = null; plan = p; if (vis) { vis.place = p.place; vis.align = p.align; vis.pw = p.pw; pop.style.width = p.pw + 'px'; vis.ph = card.offsetHeight; } }
+
+    function start() {
+      if (running || MODE !== 'web' || !STATE) return;
+      build(); running = true; closing = false; i = -1; plan = null; vis = null; from = null; go.dir = 1;
+      lastFocus = document.activeElement;
+      $('#prof').classList.remove('open');
+      document.body.classList.add('touring');
+      disp = REDUCED ? centerRect() : openRect();
+      root.classList.remove('landed', 'in'); root.classList.add('on', 'center'); void root.offsetWidth; root.classList.add('in');
+      document.addEventListener('keydown', onKey, true); window.addEventListener('resize', onResize);
+      raf = requestAnimationFrame(frame);
+      go(0);
+    }
+    function end() {
+      if (!running || closing) return;
+      markSeen(); clearTimers(); clearBeats();
+      var s = STEPS[i]; if (s && s.leave) s.leave();
+      showTab('comps');
+      closing = true; from = disp; t0 = performance.now(); dur = REDUCED ? 0 : 520;
+      card.classList.add('out'); root.classList.remove('landed', 'moving', 'in'); root.classList.add('center');
+      document.removeEventListener('keydown', onKey, true); window.removeEventListener('resize', onResize);
+      setTimeout(function () {
+        cancelAnimationFrame(raf); root.classList.remove('on'); running = false; closing = false; i = -1;
+        document.body.classList.remove('touring');
+        if (lastFocus && lastFocus.focus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+      }, REDUCED ? 220 : 540);
+    }
+    var asked = false;
+    function maybe() {
+      if (asked || MODE !== 'web') return; asked = true;
+      var force = /[?&]tour=1\b/.test(location.search);
+      if (seen() && !force) return;
+      var wait = function () { setTimeout(start, REDUCED ? 200 : 1100); };
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(wait); else wait();
+    }
+    return { start: start, end: end, maybe: maybe, next: next, back: back, get running() { return running; }, get step() { return i; } };
+  })();
+  window.aretaTour = Tour;
+  if ($('#replayTour')) $('#replayTour').onclick = function () { $('#prof').classList.remove('open'); $('#avbtn').setAttribute('aria-expanded', 'false'); setTimeout(Tour.start, REDUCED ? 0 : 220); };
+
   requestAnimationFrame(function () { document.body.classList.add('ready'); moveInd(); });
   if (MODE === 'web' && !TOKEN) showLogin(); else load();
 </script>
