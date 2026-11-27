@@ -313,8 +313,6 @@
   .tour-keys kbd { font: inherit; font-weight: 600; display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; margin: 0 1px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); font-size: 10.5px; }
   /* Welcome and finish cards */
   .tour-card.tour-hero { text-align: left; }
-  .tour-card.tour-hero:before { content: ''; position: absolute; inset: -30% -30% auto auto; width: 80%; height: 90%; pointer-events: none;
-    background: radial-gradient(50% 50% at 60% 40%, rgba(120,157,255,.34), rgba(221,231,255,.22) 50%, rgba(255,255,255,0) 75%); }
   .tour-card.tour-hero .tour-in { position: relative; padding: 30px 28px 0; }
   .tour-card.tour-hero .tour-foot { position: relative; padding: 24px 28px 24px; }
   .tour-card.tour-hero .tour-foot .ghost { margin-left: -15px; }
@@ -551,6 +549,7 @@
 
   function showLogin(msg) {
     document.body.classList.remove('authed');
+    if (typeof Tour !== 'undefined' && Tour.running) Tour.end();
     $('#login').classList.add('on'); $('#lgErr').textContent = msg && msg !== 'Please sign in.' ? msg : '';
     try { $('#lgName').value = localStorage.getItem('aretaName') || ''; } catch (e) { /* none */ }
     setTimeout(function () { ($('#lgName').value ? $('#lgPw') : $('#lgName')).focus(); }, 60);
@@ -567,6 +566,7 @@
       lg.style.transition = 'opacity .35s cubic-bezier(0.23,1,0.32,1)'; lg.style.opacity = '0';
       setTimeout(function () { lg.classList.remove('on'); lg.style.opacity = ''; lg.style.transition = ''; }, REDUCED ? 0 : 350);
       document.body.classList.add('authed');
+      Tour.afterLogin();
       return load();
     }).catch(function (e) {
       $('#lgErr').textContent = e.message.replace(/^Exception: /, '');
@@ -1137,15 +1137,16 @@
         if (lastFocus && lastFocus.focus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
       }, REDUCED ? 220 : 540);
     }
-    var asked = false;
+    // The welcome card greets every sign-in (Not now dismisses it). A reload of an
+    // already signed-in page skips it, unless ?tour=1 is in the URL.
+    var pending = /[?&]tour=1\b/.test(location.search);
+    function afterLogin() { pending = true; }
     function maybe() {
-      if (asked || MODE !== 'web') return; asked = true;
-      var force = /[?&]tour=1\b/.test(location.search);
-      if (seen() && !force) return;
+      if (!pending || MODE !== 'web' || running) return; pending = false;
       var wait = function () { setTimeout(start, REDUCED ? 200 : 1100); };
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(wait); else wait();
     }
-    return { start: start, end: end, maybe: maybe, next: next, back: back, get running() { return running; }, get step() { return i; } };
+    return { start: start, end: end, maybe: maybe, afterLogin: afterLogin, next: next, back: back, get running() { return running; }, get step() { return i; } };
   })();
   window.aretaTour = Tour;
   if ($('#replayTour')) $('#replayTour').onclick = function () { $('#prof').classList.remove('open'); $('#avbtn').setAttribute('aria-expanded', 'false'); setTimeout(Tour.start, REDUCED ? 0 : 220); };
