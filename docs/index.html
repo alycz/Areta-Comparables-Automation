@@ -81,7 +81,6 @@
   .hero { position: relative; overflow: hidden; padding: 56px 0 40px; background: #fff; border-bottom: 1px solid var(--line); }
   .hero .glow { position: absolute; inset: -40% -10% auto auto; width: 62%; height: 180%; pointer-events: none;
     background: radial-gradient(60% 50% at 70% 40%, rgba(120,157,255,.38), rgba(221,231,255,.25) 45%, rgba(255,255,255,0) 72%); }
-  .hero .slash { position: absolute; right: 6%; top: -30%; width: 280px; height: 160%; background: linear-gradient(180deg, rgba(14,79,245,0), rgba(14,79,245,.08) 40%, rgba(14,79,245,0)); transform: skewX(-24deg); pointer-events: none; }
   .eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); }
   .eyebrow:before { content: ''; width: 18px; height: 2px; background: var(--blue); border-radius: 2px; }
   .hero .head { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
@@ -109,7 +108,6 @@
   .section-h p { margin: 0; color: var(--muted); font-size: 13.5px; }
   .steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
   .step.all { background: linear-gradient(160deg, var(--blue) 0%, var(--midnight) 100%); border-color: transparent; color: #fff; overflow: hidden; }
-  .step.all:after { content: ''; position: absolute; right: -40px; top: -40%; width: 120px; height: 180%; background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.12) 45%, rgba(255,255,255,0)); transform: skewX(-24deg); pointer-events: none; }
   .step.all .n { color: rgba(255,255,255,.55); } .step.all p { color: rgba(255,255,255,.78); }
   .step.all:hover { box-shadow: 0 12px 32px rgba(0,43,153,.28); }
   button.light { background: #fff; border-color: #fff; color: var(--midnight); }
@@ -233,7 +231,6 @@
   /* Login */
   .login { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; padding: 16px; background: #fff; overflow: hidden; }
   .login:before { content: ''; position: absolute; inset: 0; background: radial-gradient(50% 60% at 85% 30%, rgba(120,157,255,.35), rgba(221,231,255,.2) 50%, rgba(255,255,255,0) 75%); }
-  .login:after { content: ''; position: absolute; right: 12%; top: -20%; width: 240px; height: 140%; background: linear-gradient(180deg, rgba(14,79,245,0), rgba(14,79,245,.07) 45%, rgba(14,79,245,0)); transform: skewX(-24deg); }
   .login.on { display: grid; }
   .login form { position: relative; z-index: 1; width: 100%; max-width: 420px; background: rgba(255,255,255,.92); backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 22px; padding: 44px 36px 36px; box-shadow: var(--shadow-lg);
     display: flex; flex-direction: column; animation: cardIn .5s var(--ease-out); }
@@ -337,7 +334,7 @@
   .kpi.tour-lift { translate: 0 -4px; box-shadow: var(--shadow-md); border-color: var(--midday); }
   .fl.tour-ping { animation: tourPing 1.4s var(--ease-out) 3; }
   @keyframes tourPing { 0% { box-shadow: 0 0 0 0 rgba(217,154,0,.55); } 100% { box-shadow: 0 0 0 9px rgba(217,154,0,0); } }
-  .step.all:after { translate: 0 0; }
+
   .step.all.tour-shine:after { animation: tourShine 1.2s var(--ease-in-out); }
   @keyframes tourShine { from { translate: -420px 0; } to { translate: 0 0; } }
   .mi.tour-hl { background: var(--frost-2); color: var(--midnight); }
@@ -414,7 +411,7 @@
   </header>
 
   <section class="hero">
-    <div class="glow"></div><div class="slash"></div>
+    <div class="glow"></div>
     <div class="wrap" style="position:relative">
       <div class="head">
         <div class="eyebrow rise" style="--i:0" id="eyebrow">Trading comparables</div>
