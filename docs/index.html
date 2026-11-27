@@ -918,8 +918,7 @@
       { el: '#p-queue .card', eyebrow: 'Review queue', pad: 6,
         title: 'Proposed changes, before they are written',
         body: 'Everything the latest import wants to change. Untick anything you don\'t want, then apply the rest in one go.',
-        enter: function () { showTab('queue'); },
-        leave: function () { showTab('comps'); } },
+        enter: function () { showTab('queue'); } },
       { el: '#menu', inHeader: true, pad: 6, eyebrow: 'Profile',
         title: 'Your profile menu',
         body: 'Open the Google Sheet, take this tour again, or sign out.',
@@ -1076,11 +1075,16 @@
         var pw = s.center ? Math.min(440, vw() - 2 * M) : popW();
         var next = makePlan(s, measure(s, pw));
         plan = next;
-        from = disp || centerRect(); t0 = performance.now(); dur = REDUCED ? 0 : (prev ? 580 : 720);
-        autoScrollUntil = performance.now() + 1200;
-        if (next.scroll != null && Math.abs(next.scroll - window.pageYOffset) > 1) window.scrollTo({ top: next.scroll, behavior: REDUCED ? 'auto' : 'smooth' });
+        var move = function () {
+          from = disp || centerRect(); t0 = performance.now(); dur = REDUCED ? 0 : (prev ? 580 : 720);
+          autoScrollUntil = performance.now() + 1200;
+          if (next.scroll != null && Math.abs(next.scroll - window.pageYOffset) > 1) window.scrollTo({ top: next.scroll, behavior: REDUCED ? 'auto' : 'smooth' });
+        };
+        // Reduced motion: the spotlight and page jump only once the old card has faded out.
+        if (!REDUCED) move();
         prog.style.width = (s.kind === 'finish' ? 100 : Math.max(0, stops().indexOf(s) + 1) / stops().length * 100) + '%';
         after(function () {
+          if (REDUCED) move();
           card.className = 'tour-card out' + (s.center ? ' tour-hero' : '');
           card.querySelector('.tour-body').innerHTML = content(s);
           pop.style.width = next.pw + 'px';
