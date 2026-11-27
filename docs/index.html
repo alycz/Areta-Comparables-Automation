@@ -832,7 +832,8 @@
     var EASE = bezier(0.5, 0, 0.12, 1);
 
     function firstName() {
-      var u = String((STATE && STATE.user) || '').replace(/ \(web\)$/, '').trim();
+      var typed = ''; try { typed = localStorage.getItem('aretaName') || ''; } catch (e) { /* none */ }
+      var u = String((STATE && STATE.user) || typed || '').replace(/ \(web\)$/, '').trim();
       if (!u || /@/.test(u)) return '';
       var f = u.split(/\s+/)[0]; return f.charAt(0).toUpperCase() + f.slice(1);
     }
@@ -1083,7 +1084,7 @@
         after(function () { root.classList.remove('moving'); root.classList.add('landed'); if (s.beat && !REDUCED) s.beat(); }, dur + 40);
       });
     }
-    function next() { go.dir = 1; if (i >= STEPS.length - 1) end(); else go(nextUsable(i, 1)); }
+    function next() { go.dir = 1; if (i >= STEPS.length - 1) return end(); if (i === 0 && !dataReady) return whenReady(card.querySelector('[data-t=next]'), function () { if (running && i === 0) next(); }); go(nextUsable(i, 1)); }
     function back() { go.dir = -1; if (i > 0) go(nextUsable(i, -1)); }
     function nextUsable(from, dir) { var k = from + dir; while (k > 0 && k < STEPS.length - 1 && !usable(STEPS[k])) k += dir; return Math.max(0, Math.min(STEPS.length - 1, k)); }
 
@@ -1111,7 +1112,7 @@
     function onScroll() { if (performance.now() < autoScrollUntil) return; clearTimeout(sT); sT = setTimeout(function () { if (performance.now() >= autoScrollUntil && root.classList.contains('landed')) replan(true); }, 160); }
 
     function start() {
-      if (running || MODE !== 'web' || !STATE) return;
+      if (running || MODE !== 'web') return; waiter = null;
       build(); running = true; closing = false; i = -1; plan = null; vis = null; from = null; go.dir = 1;
       lastFocus = document.activeElement;
       $('#prof').classList.remove('open');
@@ -1139,12 +1140,23 @@
     }
     // The welcome card greets every sign-in (Not now dismisses it). A reload of an
     // already signed-in page skips it, unless ?tour=1 is in the URL.
-    var pending = /[?&]tour=1\b/.test(location.search);
-    function afterLogin() { pending = true; }
-    function maybe() {
+    // The welcome card opens as soon as the sign-in succeeds (it needs no data);
+    // the model data loads behind it, and "Show me around" waits for it if needed.
+    var pending = /[?&]tour=1\b/.test(location.search), dataReady = false, waiter = null;
+    function afterLogin() {
+      pending = false; dataReady = false;
+      setTimeout(function () { if (MODE === 'web' && document.body.classList.contains('authed')) start(); }, REDUCED ? 0 : 420);
+    }
+    function maybe() { // called after every successful data load
+      dataReady = true;
+      if (waiter) { var w = waiter; waiter = null; w(); }
       if (!pending || MODE !== 'web' || running) return; pending = false;
-      var wait = function () { setTimeout(start, REDUCED ? 200 : 1100); };
-      if (document.fonts && document.fonts.ready) document.fonts.ready.then(wait); else wait();
+      setTimeout(start, REDUCED ? 0 : 600);
+    }
+    function whenReady(btn, fn) {
+      if (dataReady) return fn();
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Loading the model'; }
+      waiter = fn;
     }
     return { start: start, end: end, maybe: maybe, afterLogin: afterLogin, next: next, back: back, get running() { return running; }, get step() { return i; } };
   })();
