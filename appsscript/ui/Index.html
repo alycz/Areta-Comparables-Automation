@@ -68,7 +68,7 @@
   .mi { display: block; width: 100%; text-align: left; border: none; border-radius: 10px; padding: 10px 12px; font-weight: 500; color: var(--ink-2); background: transparent; box-shadow: none !important; }
   .mi:hover { background: var(--bg); color: var(--ink); }
   .mi.signout { color: var(--err); }
-  .tabacts { display: flex; gap: 8px; align-items: center; padding-bottom: 8px; }
+  .tabacts { display: flex; gap: 8px; align-items: center; padding-bottom: 2px; }
   .who { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; margin-right: 6px; }
   .who .av { width: 26px; height: 26px; border-radius: 50%; background: var(--frost); color: var(--midnight); display: grid; place-items: center; font-weight: 700; font-size: 11px; }
 
@@ -90,7 +90,7 @@
   .kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-top: 32px; position: relative; z-index: 1; }
   .kpi { display: flex; flex-direction: column; height: 100%; background: rgba(255,255,255,.86); backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 18px 20px 16px; box-shadow: var(--shadow-sm); min-width: 0;
     transition: transform .3s var(--ease-out), box-shadow .3s var(--ease-out), border-color .3s var(--ease-out); }
-  .kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #D6DDEE; }
+  @media (hover: hover) { .kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #D6DDEE; } }
   .kpi .k { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
   .kpi .v { font-size: 26px; font-weight: 600; letter-spacing: -.02em; margin-top: 8px; line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .kpi .v.err { color: var(--err); } .kpi .v.rev { color: var(--rev); } .kpi .v.ok { color: var(--ok); }
@@ -118,7 +118,7 @@
   #refreshBtn:hover .rf { transform: rotate(180deg); }
   .step { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm);
     transition: transform .3s var(--ease-out), box-shadow .3s var(--ease-out), border-color .3s var(--ease-out); }
-  .step:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #D6DDEE; }
+  @media (hover: hover) { .step:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #D6DDEE; } }
   .step .n { font-family: 'Benne', Georgia, serif; font-size: 30px; line-height: 1; color: var(--midday); }
   .step h3 { margin: 4px 0 0; font-size: 16.5px; font-weight: 600; letter-spacing: -.01em; }
   .step p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; flex: 1; }
@@ -133,11 +133,11 @@
 
   /* Tabs with a sliding indicator */
   .tabs { position: relative; display: flex; align-items: center; gap: 4px; margin: 44px 0 16px; border-bottom: 1px solid var(--line); }
-  .tab { position: relative; border: none; border-radius: 0; background: none; padding: 12px 16px 14px; color: var(--muted); font-size: 14.5px; box-shadow: none !important; }
+  .tab { position: relative; display: inline-flex; align-items: center; border: none; border-radius: 0; background: none; padding: 12px 16px 14px; color: var(--muted); font-size: 14.5px; box-shadow: none !important; }
   .tab:hover { color: var(--ink); border: none; }
   .tab:active:not(:disabled) { transform: none; }
   .tab.on { color: var(--ink); }
-  .tab .c { display: inline-grid; place-items: center; min-width: 22px; height: 20px; padding: 0 7px; margin-left: 8px; border-radius: 999px; background: var(--frost); color: var(--midnight); font-size: 11.5px; font-weight: 700; transition: background-color .2s var(--ease-out); }
+  .tab .c { display: inline-grid; place-items: center; min-width: 22px; height: 20px; padding: 0 7px; margin-left: 8px; border-radius: 999px; background: var(--frost); color: var(--midnight); font-size: 11.5px; font-weight: 700; line-height: 1; transition: background-color .2s var(--ease-out); }
   .tab .c.zero { background: var(--line-2); color: var(--faint); }
   .ind { position: absolute; bottom: -1px; height: 2px; background: var(--blue); border-radius: 2px; transition: transform .35s var(--ease-out), width .35s var(--ease-out); left: 0; }
 
@@ -241,7 +241,7 @@
   .login input { font: inherit; font-size: 15px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md); text-transform: none; letter-spacing: 0; color: var(--ink); background: #fff; transition: border-color .2s var(--ease-out), box-shadow .2s var(--ease-out); }
   .login input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px var(--frost-2); }
   .login .err { color: var(--err); font-size: 13px; margin: -4px 0 12px; }
-  .login .err:empty { display: none; }
+  .login .err { min-height: 18px; line-height: 18px; }
   .login button { padding: 13px 16px; font-size: 15px; margin-top: 4px; }
   .login .fine { text-align: center; font-size: 12px; color: var(--faint); margin-top: 18px; }
   .shake { animation: shake .4s var(--ease-out); }
@@ -260,12 +260,20 @@
   body.sidebar .side-head .logo { height: 20px; }
   body.sidebar .rise { opacity: 1; transform: none; }
 
-  @media (max-width: 1280px) { .steps { grid-template-columns: repeat(3, minmax(0,1fr)); } }
-  @media (max-width: 1100px) { .kpis { grid-template-columns: repeat(3, minmax(0,1fr)); } .steps { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 721px) and (max-width: 1320px) {
+    .steps { grid-template-columns: repeat(6, minmax(0,1fr)); } .steps > .step { grid-column: span 2; } .steps > .step:nth-child(n+4) { grid-column: span 3; }
+  }
+  @media (min-width: 721px) and (max-width: 1100px) { .kpis { grid-template-columns: repeat(6, minmax(0,1fr)); } .kpis > * { grid-column: span 2; } .kpis > *:nth-child(n+4) { grid-column: span 3; } }
+  @media (min-width: 721px) and (max-width: 900px) { .steps > .step { grid-column: span 3; } .steps > .step.all { grid-column: 1 / -1; } }
   @media (max-width: 720px) {
     .wrap { padding: 0 16px; } .top .wrap { height: 60px; } .lockup .div, .lockup .sub, .who, .top .hide-sm { display: none; }
-    .hero { padding: 36px 0 28px; } .hero h1 { font-size: 34px; } .kpis, .steps { grid-template-columns: 1fr; }
-    .tabs { overflow-x: auto; } .bar input[type=text] { min-width: 0; width: 100%; } .login form { padding: 36px 22px 28px; }
+    .login h2 { font-size: 25px; }
+    .hero { padding: 36px 0 28px; } .hero h1 { font-size: 34px; } .steps { grid-template-columns: 1fr; }
+    .kpis { grid-template-columns: 1fr 1fr; gap: 10px; } .kpis > *:nth-child(5) { grid-column: 1 / -1; }
+    .kpi { padding: 14px 14px 12px; } .kpi .v { font-size: 22px; } .kpi .s { white-space: normal; }
+    .tabs { overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+    .tabs::-webkit-scrollbar { display: none; } .tab { padding: 12px 10px 14px; flex: none; } .tabacts { display: none; }
+    .seg { max-width: 100%; overflow-x: auto; flex-wrap: nowrap; } .bar input[type=text] { min-width: 0; width: 100%; } .login form { padding: 36px 22px 28px; }
   }
   /* Guided tour (first login; replay from the profile menu).
      One spotlight morphs between components; everything else is dimmed but legible.
@@ -485,7 +493,10 @@
     if (API_URL && !(window.google && google.script && google.script.run)) {
       return fetch(API_URL, { method: 'POST', credentials: 'omit', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args }) })
         .then(function (r) { if (!r.ok) throw new Error('Server returned ' + r.status); return r.json(); })
-        .then(function (j) { if (!j.ok) throw new Error(j.error); return j.result; });
+        .then(function (j) { if (!j.ok) throw new Error(j.error); return j.result; }, function (e) {
+          if (e instanceof TypeError) throw new Error('Can\'t reach the server. Check your connection and try again.');
+          throw e;
+        });
     }
     return new Promise(function (res, rej) {
       google.script.run.withSuccessHandler(res).withFailureHandler(function (e) { rej(new Error(String(e && e.message || e))); })[fn].apply(null, args);
@@ -521,7 +532,8 @@
     }).catch(function (e) {
       $('#lgErr').textContent = e.message.replace(/^Exception: /, '');
       form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake');
-    }).then(function () { b.disabled = false; b.textContent = 'Sign in'; });
+      return 'retry';
+    }).then(function (x) { b.disabled = false; b.textContent = 'Sign in'; if (x === 'retry') $('#lgPw').select(); });
   };
 
   function toast(t, isErr) {
@@ -564,7 +576,7 @@
     var k = [
       ['Price date', snap.priceDate || '–', snap.priorDate ? 'Prior ' + esc(snap.priorDate) : 'Prior date set on next refresh', ''],
       ['Financials (LTM to)', period.replace(/^LTM /, ''), imported ? 'Imported ' + esc(imported) : 'Capital IQ exports', ''],
-      ['Errors', s.counts.error, s.counts.error ? 'Value not written or broken calc' : 'Nothing blocked', s.counts.error ? 'err' : 'ok', true],
+      ['Errors', s.counts.error, s.counts.error ? 'Not written or broken calc' : 'Nothing blocked', s.counts.error ? 'err' : 'ok', true],
       ['For review', s.counts.review, 'Banker judgement · ' + s.counts.reviewed + ' signed off', s.counts.review ? 'rev' : 'ok', true],
       ['CIQ inbox', s.inboxCount, '<a target="_blank" href="' + esc(s.inboxUrl) + '">Open folder ↗</a>', '', true]
     ];
@@ -588,10 +600,10 @@
       var t = el.dataset.run, r = null;
       for (var i = 0; i < runs.length; i++) { if (t === '__all' ? /run-all/.test(runs[i].trigger) : runs[i].type === t) { r = runs[i]; break; } }
       if (!r) { el.innerHTML = '<span class="dot"></span>Not run yet'; el.className = 'last'; return; }
-      var when = r.started ? new Date(r.started).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+      var when = r.started ? new Date(r.started).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '') : '';
       el.className = 'last ' + (r.status === 'Failed' ? 'bad' : r.status === 'OK' ? 'good' : 'warn');
-      el.innerHTML = '<span class="dot"></span>Last run ' + esc(when) + (r.trigger === 'scheduled' ? ' · scheduled' : '');
-      el.title = r.summary || '';
+      el.innerHTML = '<span class="dot"></span>Last run ' + esc(when);
+      el.title = (/^sched/.test(r.trigger) ? 'Scheduled run. ' : '') + (r.summary || '');
     });
   }
 
@@ -655,7 +667,7 @@
     if (!r.length) { $('#runs').innerHTML = '<tr><td class="empty"><span class="em">No runs yet</span>Runs appear here as they happen.</td></tr>'; return; }
     $('#runs').innerHTML = '<thead><tr><th class="l">When</th><th class="l">Run</th><th class="l">Trigger</th><th class="l">User</th><th class="l">Status</th><th class="l">Summary</th></tr></thead><tbody>' + r.map(function (x) {
       var when = x.started ? new Date(x.started).toLocaleString([], { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
-      return '<tr><td class="l tick">' + esc(when) + '</td><td class="l co">' + esc(String(x.type).charAt(0).toUpperCase() + String(x.type).slice(1)) + '</td><td class="l tick">' + esc(x.trigger) + '</td><td class="l tick">' + esc(x.user) + '</td><td class="l"><span class="pill ' + esc(x.status) + '">' + esc(x.status) + '</span></td><td class="msg">' + esc(x.summary) + '</td></tr>';
+      return '<tr><td class="l tick">' + esc(when) + '</td><td class="l co">' + esc(String(x.type).charAt(0).toUpperCase() + String(x.type).slice(1)) + '</td><td class="l tick">' + esc({ manual: 'Manual', scheduled: 'Scheduled', schedule: 'Scheduled', 'run-all': 'Run all' }[x.trigger] || x.trigger) + '</td><td class="l tick">' + esc(String(x.user || '').replace(/ \(web\)$/, '')) + '</td><td class="l"><span class="pill ' + esc(x.status) + '">' + esc(x.status) + '</span></td><td class="msg">' + esc(x.summary) + '</td></tr>';
     }).join('') + '</tbody>';
   }
 
@@ -850,7 +862,7 @@
         title: 'Proposed changes, before they are written',
         body: 'Everything the latest import wants to change. Untick anything you don\'t want, then apply the rest in one go.',
         enter: function () { showTab('queue'); } },
-      { el: '#menu', inHeader: true, pad: 6, eyebrow: 'Profile',
+      { el: '#menu', inHeader: true, pad: 0, eyebrow: 'Profile',
         title: 'Your profile menu',
         body: 'Open the Google Sheet, take this tour again, or sign out.',
         enter: function () { $('#prof').classList.add('open'); $('#avbtn').setAttribute('aria-expanded', 'true'); $('#replayTour').classList.add('tour-hl'); },

@@ -132,6 +132,10 @@ test('model helpers: header map, layout, tickers, NM and medians', () => {
   assert.strictEqual(core.matchCompany(lay.companies, 'NASDAQ:COIN').how, 'symbol');
   const c = core.computeRow({ price: 10, priorPrice: 8, sharesOut: 100, netDebt: -50, nci: 5, preferred: 0, ltmRevenue: 100, ltmEbitda: -1 });
   assert.strictEqual(c.ev, 955); assert.strictEqual(c.evEbitda, 'NM'); close(c.change, 0.25);
+  // Missing input: blank like the sheet formula, not NM (else Run checks raises a false RECALC_MISMATCH).
+  const blank = core.computeRow({ price: 10, sharesOut: 100, netDebt: 0, ltmEbitda: 50 });
+  assert.strictEqual(blank.evRevenue, null); close(blank.evEbitda, 20);
+  assert.strictEqual(core.computeRow({ sharesOut: 100, ltmRevenue: 10 }).evRevenue, null);
   assert.strictEqual(core.medianIgnoringNM([1, 'NM', 3, 2]), 2);
   assert.strictEqual(core.medianIgnoringNM(['NM']), 'NM');
 });

@@ -137,6 +137,8 @@ function stageImport(opts) {
       var cur = rowValues(model, +row);
       validateFinancials(rec, { todayIso: todayIso, peerPeriod: peerPeriod, existing: cur, settings: settings });
       var fieldErr = {};
+      // A record-level ERROR (no field, e.g. export not in millions) blocks the whole export.
+      var recordErr = rec.issues.some(function (i) { return i.severity === 'ERROR' && !i.field; });
       rec.issues.forEach(function (i) {
         if (i.severity === 'ERROR' && i.field) fieldErr[i.field] = true;
         issues.push({ severity: i.severity, category: 'Financials', company: rec.company.name, ticker: rec.company.ticker, field: i.field, code: i.code, message: i.message,
@@ -150,7 +152,7 @@ function stageImport(opts) {
         var has = rec.fields.hasOwnProperty(field);
         var newV = has ? rec.fields[field] : '';
         var oldV = cur[field];
-        var blocked = !has || fieldErr[field];
+        var blocked = !has || fieldErr[field] || recordErr;
         var same = has && sameValue(oldV, newV);
         var status = blocked ? 'Blocked: keep current' : same ? 'No change' : (flagsFor(field) ? 'Review' : 'Ready');
         var s = rec.sources[field] || {};

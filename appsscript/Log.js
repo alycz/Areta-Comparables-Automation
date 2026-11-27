@@ -88,7 +88,8 @@ function syncExceptions(run, categories, items, scopeTickers) {
   var fresh = items.map(function (it) {
     var key = [it.category, it.ticker || '', it.field || '', it.code].join('|');
     var p = prev[key];
-    var status = p && p[11] === 'Reviewed' ? 'Reviewed' : 'Open';
+    // A sign-off carries over only while the issue reads the same; a new value or a new failure reopens it.
+    var status = p && p[11] === 'Reviewed' && p[6] === it.message ? 'Reviewed' : 'Open';
     return [key, it.severity, it.category, it.company || 'Whole model', it.ticker || '—', FIELD_LABELS[it.field] || it.field || '', it.message,
       it.source || '', p ? p[8] : now, now, run.id, status, p ? p[12] : '', p ? p[13] : ''];
   });

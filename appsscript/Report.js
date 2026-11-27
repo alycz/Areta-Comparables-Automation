@@ -29,9 +29,9 @@ function buildValidationReport(opts) {
 
   // Verdict in one sentence.
   var verdict = cnt('ERROR')
-    ? cnt('ERROR') + ' error(s) open: the affected values were not written. Resolve them before using the comps.'
+    ? cnt('ERROR') + ' error(s) open: the affected values were not written. Resolve them before using the model.'
     : cnt('REVIEW')
-      ? 'No errors. ' + cnt('REVIEW') + ' item(s) rest on a banker\'s judgement; sign them off on the Exceptions tab before the comps go external.'
+      ? 'No errors. ' + cnt('REVIEW') + ' item(s) rest on a banker\'s judgement; sign them off on the Exceptions tab before the numbers go external.'
       : 'All clear. No errors and nothing waiting for review.';
   var vr = sh.getRange(row, R_COLS.first, 1, R_COLS.count).merge().setValue(verdict).setFontWeight('bold').setFontSize(11).setWrap(true)
     .setFontColor(cnt('ERROR') ? '#C5221F' : cnt('REVIEW') ? '#8A5A00' : '#137333')

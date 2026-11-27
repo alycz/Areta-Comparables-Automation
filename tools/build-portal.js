@@ -18,7 +18,7 @@ html = html
   .replace(/<\?!?= hasPassword \? '([^']*)' :[\s\S]*?\?>/, '$1')
   .replace('<script>', '<script>window.ARETA_API_URL = ' + JSON.stringify(url) + ';</script>\n<script>');
 if (/<\?/.test(html)) throw new Error('Unresolved template tag: ' + html.match(/<\?.{0,60}/)[0]);
-html = html.replace('<head>', '<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Areta Comparables Automation</title>\n<link rel="icon" type="image/svg+xml" href="assets/icon-brand.svg">\n<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">\n<link rel="apple-touch-icon" href="assets/favicon-180.png">');
+html = html.replace('<head>', '<head>\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Areta Comparables Automation</title>\n<link rel="icon" type="image/svg+xml" href="assets/icon-brand.svg">\n<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">\n<link rel="apple-touch-icon" href="assets/favicon-180.png">');
 fs.writeFileSync(path.join(root, 'docs/index.html'), html);
 fs.writeFileSync(path.join(root, 'docs/.nojekyll'), '');
 console.log('docs/index.html built for', url);

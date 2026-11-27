@@ -341,6 +341,10 @@ function parseCiqWorkbook(sheets, fileName) {
       if (csCol >= 0 && rTd >= 0 && rTc >= 0) {
         debt = ciqNumber(cs[rTd][csCol]);
         cash = ciqNumber(cs[rTc][csCol]);
+      }
+      if (csCol >= 0 && rTd >= 0 && rTc >= 0 && (debt === null || cash === null)) {
+        issue(SEVERITY.ERROR, 'MISSING_FIELD', 'netDebt', 'Total Debt or Total Cash & ST Investments is NA in Capital Structure Summary; net debt not updated.');
+      } else if (csCol >= 0 && rTd >= 0 && rTc >= 0) {
         rec.fields.netDebt = debt - cash;
         rec.sources.netDebt = {
           file: fileName, sheet: 'Capital Structure Summary',
@@ -797,8 +801,8 @@ function computeRow(v) {
   out.marketCap = isNum(v.price) && isNum(v.sharesOut) ? v.price * v.sharesOut : null;
   out.ev = out.marketCap != null && isNum(v.netDebt) ? out.marketCap + v.netDebt + (v.nci || 0) + (v.preferred || 0) : null;
   out.change = isNum(v.price) && isNum(v.priorPrice) && v.priorPrice !== 0 ? v.price / v.priorPrice - 1 : null;
-  out.evRevenue = out.ev != null && isNum(v.ltmRevenue) && v.ltmRevenue > 0 ? out.ev / v.ltmRevenue : 'NM';
-  out.evEbitda = out.ev != null && isNum(v.ltmEbitda) && v.ltmEbitda > 0 ? out.ev / v.ltmEbitda : 'NM';
+  out.evRevenue = out.ev == null || !isNum(v.ltmRevenue) ? null : v.ltmRevenue > 0 ? out.ev / v.ltmRevenue : 'NM';
+  out.evEbitda = out.ev == null || !isNum(v.ltmEbitda) ? null : v.ltmEbitda > 0 ? out.ev / v.ltmEbitda : 'NM';
   return out;
 }
 

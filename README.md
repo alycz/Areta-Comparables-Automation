@@ -5,7 +5,7 @@ Automates Areta's trading comparables model in **Google Sheets**. It does three 
 - loads new Capital IQ exports into the model without copy-paste;
 - checks every number, so a banker only looks at the items that need judgement.
 
-The engine is Google Apps Script bound to the comps Sheet. Bankers use it from an Areta-branded dashboard, which can be the **web app** or a **sidebar inside the Sheet**. The Sheet is always the source of truth.
+The engine is Google Apps Script bound to the trading comparables Sheet. Bankers use it from an Areta-branded dashboard, which can be the **web app** or a **sidebar inside the Sheet**. The Sheet is always the source of truth.
 
 | What bankers wanted | What the engine does |
 |---|---|
@@ -88,7 +88,7 @@ Yahoo Finance ──┘ (cross-check, first-run prior)  │                     
 ### Key technical decisions
 
 - **Google Sheets stays the operating environment.** The brief names it, and bankers already work there. The web app is a front end to the Sheet, not a second copy of the data. The model can always be opened, audited and edited directly.
-- **Access is gated by Google sign-in, with no separate passwords.** The web app runs *as the signed-in user*, so only people the Sheet is shared with can see or change data. The optional `allowedUsers` setting on the Config tab narrows access further.
+- **The web dashboard has its own password, and the Sheet stays behind Google sharing.** Google's sign-in hop breaks when a browser has several Google accounts signed in, so the dashboard (GitHub Pages) calls the Apps Script API with a password. The password is stored only as a salted hash; login returns a signed token that expires after 12 hours. The script's own web address serves no page, only the API, so nothing can be run without the password. The optional `allowedUsers` setting on the Config tab limits which names or emails can sign in.
 - **Parse by label, not cell address.** CIQ layouts differ between companies. BlackRock uses "Current Capitalization", and Robinhood and Tradeweb use the financial-company template with no EV bridge or EBITDA. The parser finds rows by label and columns by period header, so a layout shift doesn't break it.
 - **Prove the mapping.** On each import the engine rebuilds market cap (CIQ price × shares) and EV (market cap + net debt + NCI + preferred) and compares them with CIQ's own figures. If they don't reconcile, the value is blocked.
 - **Never overwrite with worse data.** A failed price, a missing field, the wrong units or the wrong currency leave the existing value in place, with an ERROR item.
@@ -120,10 +120,10 @@ Where CIQ shows no EBITDA (financial template), the engine uses **implied EBITDA
 ### Independent test by Areta (a fresh copy)
 
 1. **File › Make a copy** of the Sheet. The script is copied with it.
-2. In the copy: **Comparables Automation › Set up**, then approve the permissions. Google shows "unverified app" for any private script: click *Advanced › Go to Areta Comparables Automation*.
-3. **Comparables Automation › Open CIQ inbox folder** and drop in the 20 CIQ exports.
-4. **Comparables Automation › Open dashboard**, then click **Read & validate exports**, **Apply changes**, **Refresh prices now** and **Build report** in turn.
-5. *(Optional, for the web app)* **Extensions › Apps Script › Deploy › New deployment › Web app**. Set *Execute as: User accessing* and *Who has access: Anyone with a Google account*.
+2. In the copy: **Comparables Automation › Tools › Set up / reinstall schedule**, then approve the permissions. Google shows "unverified app" for any private script: click *Advanced › Go to Areta Comparables Automation*.
+3. **Comparables Automation › Tools › Open CIQ inbox folder** and drop in the 20 CIQ exports.
+4. **Comparables Automation › Open dashboard**, then click **Read & validate**, **Apply changes**, **Refresh prices** and **Check & build report** in turn (or **Run all steps**).
+5. *(Optional, for the web dashboard)* **Extensions › Apps Script › Deploy › New deployment › Web app**. Set *Execute as: Me* and *Who has access: Anyone* (the API checks its own password), then **Comparables Automation › Tools › Set web app password**.
 
 ### For a developer (from this repo)
 

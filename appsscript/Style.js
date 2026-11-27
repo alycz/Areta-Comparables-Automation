@@ -224,7 +224,7 @@ function buildStartHere_() {
   [
     ['1. Import CIQ exports', 'When companies report: drop their Capital IQ "Financials" exports in the CIQ inbox (link below), then run step 1. Each file is matched by ticker, read, and reconciled to CIQ. Results land on the Review Queue tab.'],
     ['2. Apply financial changes', 'Look over the Review Queue: Ready = passed every check, Review = flagged for judgement, Blocked = never written. Untick anything you disagree with, then run step 2. Only the blue input cells change, and the queue empties once applied.'],
-    ['3. Refresh share prices', 'Runs automatically every Monday at 07:00 London time. Run it by hand for fresh prices before a meeting. Failed or suspicious quotes never overwrite a good price.'],
+    ['3. Refresh share prices', 'Runs automatically every Monday at 07:00 London time. Run it by hand for fresh prices before a meeting. A failed quote never overwrites a good price; a suspicious one is written and flagged for review.'],
     ['4. Run checks', 'Recomputes every formula independently and looks for hardcodes, #errors, missing inputs and outliers. Results go to the Exceptions tab. Tick Reviewed there to sign items off.'],
     ['5. Build validation report', 'Rebuilds the Validation Report tab (one tab, always current) and saves a dated PDF copy to the Reports folder in Drive.'],
     [RUN_ALL_LABEL, 'Runs 1 to 5 in one go. Ready and Review items are applied (Review items stay open on Exceptions for sign-off). Blocked items are never written.']
@@ -294,7 +294,7 @@ function buildReadMe_() {
     props.setProperty('README_SOURCE', JSON.stringify(src));
   }
 
-  var r = brandPage_(sh, 'Read Me', 'How the comps model is built, what changes when, and the conventions behind every number.');
+  var r = brandPage_(sh, 'Read Me', 'How the trading comparables model is built, what changes when, and the conventions behind every number.');
   var first = true;
   src.forEach(function (line) {
     if (line.h) { if (!first) r++; sectionTitle_(sh, r, line.t); r++; first = false; return; }
@@ -306,9 +306,9 @@ function buildReadMe_() {
   });
   r++;
   sectionTitle_(sh, r, 'Automation'); r++;
-  labelRow_(sh, r, 'Areta Comparables Automation', 'Prices, CIQ imports, checks and the validation report are automated. The Start Here tab lists the steps in order; run them from the Areta Comps menu or the web dashboard.', { min: 30 }); r++;
+  labelRow_(sh, r, 'Areta Comparables Automation', 'Prices, CIQ imports, checks and the validation report are automated. The Start Here tab lists the steps in order; run them from the Comparables Automation menu or the web dashboard.', { min: 30 }); r++;
   labelRow_(sh, r, 'Colour conventions', 'Unchanged. The engine only writes yellow (weekly) and blue (quarterly) input cells, and keeps the black formula cells as formulas.', { min: 30 }); r++;
   r++;
-  footer_(sh, r, 'Text above is from the Areta comps template; layout by the Areta Comparables Automation.');
+  footer_(sh, r, 'Text above is from the Areta trading comparables template; layout by the Areta Comparables Automation.');
   finishPage_(sh, r);
 }

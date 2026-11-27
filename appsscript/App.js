@@ -8,7 +8,7 @@ function ss_() {
   try { active = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) { active = null; }
   if (active) return active;
   var id = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
-  if (!id) throw new Error('Spreadsheet not linked. Open the Sheet and run Comparables Automation › Set up.');
+  if (!id) throw new Error('Spreadsheet not linked. Open the Sheet and run Comparables Automation › Tools › Set up / reinstall schedule.');
   return SpreadsheetApp.openById(id);
 }
 
@@ -154,10 +154,10 @@ function installTriggers() {
   var day = String(s.scheduleDay || 'MONDAY').toUpperCase();
   if (!ScriptApp.WeekDay[day]) day = 'MONDAY';
   var hour = Math.max(0, Math.min(23, Number(s.scheduleHour) || 7));
-  ScriptApp.newTrigger('scheduledWeeklyPrices').timeBased().onWeekDay(ScriptApp.WeekDay[day]).atHour(hour).create();
+  ScriptApp.newTrigger('scheduledWeeklyPrices').timeBased().onWeekDay(ScriptApp.WeekDay[day]).atHour(hour).nearMinute(0).create();
   var msg = 'Weekly price refresh scheduled for ' + day.charAt(0) + day.slice(1).toLowerCase() + 's at ' + hour + ':00 (' + ss_().getSpreadsheetTimeZone() + ').';
   if (String(s.dailySnapshot).toUpperCase() === 'YES') {
-    ScriptApp.newTrigger('scheduledDailySnapshot').timeBased().everyDays(1).atHour(22).create();
+    ScriptApp.newTrigger('scheduledDailySnapshot').timeBased().everyDays(1).atHour(22).nearMinute(0).create();
     msg += ' Daily price snapshot at 22:00 on weekdays.';
   }
   PropertiesService.getScriptProperties().setProperty('SCHEDULE_TEXT', msg);
@@ -179,11 +179,10 @@ function doGet(e) {
   if (e && e.parameter && e.parameter.ping) {
     return ContentService.createTextOutput(JSON.stringify({ ok: true, app: APP_NAME, passwordSet: !!PropertiesService.getScriptProperties().getProperty('WEB_PW_HASH') })).setMimeType(ContentService.MimeType.JSON);
   }
-  var t = HtmlService.createTemplateFromFile('ui/Index');
-  t.mode = 'web';
-  t.webAppUrl = webAppUrl_();
-  t.hasPassword = !!PropertiesService.getScriptProperties().getProperty('WEB_PW_HASH');
-  return t.evaluate().setTitle('Areta Comparables Automation').setFaviconUrl('https://alycz.github.io/Areta-Comparables-Automation/assets/favicon-32.png').addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  // The dashboard lives on the portal (GitHub Pages), which calls doPost with a password token.
+  // doGet deliberately serves no HtmlService page: any page served from this deployment would
+  // expose google.script.run, letting an anonymous visitor call engine functions directly.
+  return ContentService.createTextOutput(APP_NAME + ': this address is the data service for the dashboard. Open the dashboard at ' + portalUrl_());
 }
 
 /**
@@ -275,7 +274,7 @@ function api_login(name, pw) {
   Utilities.sleep(400); // slows guessing
   if (pwHash_(String(pw || ''), salt) !== hash) throw new Error('Wrong password.');
   name = String(name || '').trim().slice(0, 80) || 'web user';
-  if (!isAllowed_(name) && /@/.test(name)) throw new Error(name + ' is not on the access list (Config › allowedUsers).');
+  if (!isAllowed_(name)) throw new Error(name + ' is not on the access list (Config › allowedUsers).');
   var payload = Utilities.base64EncodeWebSafe(JSON.stringify({ u: name, exp: Date.now() + 12 * 3600 * 1000 }));
   return { token: payload + '.' + sign_(payload), user: name };
 }

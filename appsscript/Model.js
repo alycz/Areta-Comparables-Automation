@@ -9,7 +9,7 @@
 
 function compsSheet() {
   var sh = ss_().getSheetByName(SHEETS.COMPS);
-  if (!sh) throw new Error('No "' + SHEETS.COMPS + '" tab found. Run Comparables Automation › Set up first.');
+  if (!sh) throw new Error('No "' + SHEETS.COMPS + '" tab found. Run Comparables Automation › Tools › Set up / reinstall schedule first.');
   return sh;
 }
 

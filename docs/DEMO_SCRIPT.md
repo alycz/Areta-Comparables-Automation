@@ -2,7 +2,7 @@
 
 | Min | Show | Say |
 |---|---|---|
-| 0–3 | Web app home | "The problem: prices by hand, CIQ copy-paste, manual checks. The solution keeps the Sheet as the model and adds an engine plus a dashboard. Google sign-in is the gate; it runs as whoever is signed in, so access = Sheet sharing." |
+| 0–3 | Web app home | "The problem: prices by hand, CIQ copy-paste, manual checks. The solution keeps the Sheet as the model and adds an engine plus a dashboard. The dashboard has its own password, so it works in any browser; the Sheet itself stays behind Google sharing." |
 | 3–8 | Step 2: drop the 20 CIQ files → Read & validate | "Each file is converted, matched by ticker and read **by label**, not by cell. Layouts differ: BlackRock says 'Current Capitalization'; Robinhood and Tradeweb use CIQ's financial template with no EV bridge and no EBITDA." |
 | 8–13 | Review queue | "Every proposed value shows its source cell. Before anything is written, market cap and EV are rebuilt and reconciled to CIQ's own figures; 18 of 18 reconcile within 0.5%. Blocked values never reach the model." |
 | 13–16 | Apply → Comps tab in the Sheet | "Only blue cells change. Structure and formatting are untouched. Formulas are engine-installed, NM when the denominator ≤ 0, medians ignore NM." |
